@@ -6,16 +6,11 @@ import { useTheme } from "next-themes"
 import {
   AudioWaveform,
   BookCopy,
-  BookOpen,
-  Bot,
-  Command,
   Flag,
   Frame,
   GalleryVerticalEnd,
   Map,
   PieChart,
-  Settings2,
-  SquareTerminal,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -51,7 +46,7 @@ const data = {
     },
     {
       name: "Recursos Humanos",
-      logo: Command,
+      logo: GalleryVerticalEnd, // Substituído Command por GalleryVerticalEnd
       plan: "Free",
     },
   ],
@@ -184,8 +179,7 @@ function DynamicLogo() {
         height={currentHeight} 
         priority
         className="transition-all duration-200 object-contain flex-shrink-0"
-        onError={(e) => {
-          console.error("Erro ao carregar logo:", currentLogoSrc)
+        onError={() => {
           // Fallback para o logo padrão se houver erro
           if (currentLogoSrc !== "/evous_logo.svg") {
             setCurrentLogoSrc("/evous_logo.svg")
