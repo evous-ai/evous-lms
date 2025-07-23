@@ -30,8 +30,8 @@ export default function VideoSuccessPage() {
         <div className="text-center space-y-6">
           {/* Ícone de sucesso */}
           <div className="flex justify-center">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-12 h-12 text-green-600" />
+            <div className="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-12 h-12 text-teal-700" />
             </div>
           </div>
 

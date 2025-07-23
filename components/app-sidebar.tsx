@@ -11,10 +11,11 @@ import {
   GalleryVerticalEnd,
   Map,
   PieChart,
+  Route,
+  House,
+  Sparkles,
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
@@ -24,6 +25,11 @@ import {
   SidebarHeader,
   SidebarRail,
   useSidebar,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
 } from "@/components/ui/sidebar"
 
 // This is sample data.
@@ -31,7 +37,7 @@ const data = {
   user: {
     name: "edgar.fonseca",
     email: "edgar.fonseca@evous.ai",
-    avatar: "/avatars/shadcn.jpg",
+    avatar: "/avatar_default.png",
   },
   teams: [
     {
@@ -136,57 +142,50 @@ const data = {
 function DynamicLogo() {
   const { theme } = useTheme()
   const { state } = useSidebar()
-  const [currentLogoSrc, setCurrentLogoSrc] = React.useState("/evous_logo.svg")
-  const [currentWidth, setCurrentWidth] = React.useState(120)
-  const [currentHeight, setCurrentHeight] = React.useState(40)
-  
-  // Debug temporário
-  console.log("Sidebar state:", state, "Theme:", theme)
-  
+  const [logo, setLogo] = React.useState({
+    src: "/evous_logo.svg",
+    width: 120,
+    height: 40,
+  })
+
   React.useEffect(() => {
-    let logoSrc = "/evous_logo.svg" // padrão (dark mode, sidebar expandido)
-    let logoWidth = 120
-    let logoHeight = 40
-    
-    // Prioriza o estado do sidebar sobre o tema
     if (state === "collapsed") {
-      logoSrc = "/evous_logo_box.svg" // sidebar comprimido
-      logoWidth = 40
-      logoHeight = 40
-      console.log("🔄 Mudando para logo box:", logoSrc)
+      setLogo({
+        src: "/evous_logo_box.svg",
+        width: 40,
+        height: 40,
+      })
+    } else if (theme === "light") {
+      setLogo({
+        src: "/evous_logo_light.svg",
+        width: 120,
+        height: 40,
+      })
     } else {
-      // Só aplica o tema light se o sidebar estiver expandido
-      if (theme === "light") {
-        logoSrc = "/evous_logo_light.svg" // light mode
-        console.log("☀️ Mudando para logo light:", logoSrc)
-      } else {
-        console.log("🌙 Usando logo dark padrão:", logoSrc)
-      }
+      setLogo({
+        src: "/evous_logo.svg",
+        width: 120,
+        height: 40,
+      })
     }
-    
-    console.log("📊 Configuração final:", { logoSrc, logoWidth, logoHeight, state, theme })
-    setCurrentLogoSrc(logoSrc)
-    setCurrentWidth(logoWidth)
-    setCurrentHeight(logoHeight)
   }, [state, theme])
-  
+
+  // Log para depuração
+  if (!logo.width || !logo.height) {
+    console.error("Logo state inválido:", logo)
+    return null // Não renderiza nada se width/height não estiverem definidos
+  }
+
   return (
-    <div className="px-4 py-3 flex items-center justify-start min-h-[60px] w-full overflow-hidden">
-      <Image 
-        src={currentLogoSrc} 
-        alt="Evous Logo" 
-        width={currentWidth} 
-        height={currentHeight} 
+    <div className={state === "collapsed" ? "flex items-center justify-center py-3 min-h-[60px] w-full" : "px-4 py-3 flex items-center justify-start min-h-[60px] w-full overflow-hidden"}>
+      <Image
+        src={logo.src}
+        alt="Evous Logo"
+        width={logo.width}
+        height={logo.height}
         priority
-        className="transition-all duration-200 object-contain flex-shrink-0"
-        onError={() => {
-          // Fallback para o logo padrão se houver erro
-          if (currentLogoSrc !== "/evous_logo.svg") {
-            setCurrentLogoSrc("/evous_logo.svg")
-            setCurrentWidth(120)
-            setCurrentHeight(40)
-          }
-        }}
+        className={state === "collapsed" ? "transition-all duration-200 object-contain flex-shrink-0 mx-auto" : "transition-all duration-200 object-contain flex-shrink-0"}
+
       />
     </div>
   )
@@ -199,8 +198,88 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <DynamicLogo />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* Link Início */}
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Início">
+                <a href="#">
+                  <House />
+                  <span>Início</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Bloco: Base de Conhecimento */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Base de Conhecimento</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Fontes de Dados">
+                <a href="#">
+                  <BookCopy />
+                  <span>Fontes de Dados</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Ativos">
+                <a href="#">
+                  <GalleryVerticalEnd />
+                  <span>Ativos</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Minhas Marcas">
+                <a href="#">
+                  <Flag />
+                  <span>Minhas Marcas</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Bloco: Geração */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Geração</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Jornadas">
+                <a href="#">
+                  <Route />
+                  <span>Jornadas</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Assistente IA" className="opacity-50 pointer-events-none">
+                <a href="#">
+                  <Sparkles />
+                  <span>Assistente IA</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Bloco: Insights */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Insights</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Dashboard">
+                <a href="#">
+                  <PieChart />
+                  <span>Dashboard</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <TeamSwitcher teams={data.teams} />

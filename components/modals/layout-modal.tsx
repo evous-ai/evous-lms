@@ -1,6 +1,7 @@
 "use client"
 
 import { Check, Type, User } from "lucide-react";
+import LayoutThumbnail from "../layout-thumbnail";
 
 interface LayoutOption {
   id: string;
@@ -8,7 +9,7 @@ interface LayoutOption {
   category: string;
   description: string;
   thumbnail: React.ReactNode;
-  layoutType: "layout1" | "layout2" | "layout3" | "layout4" | "layout5";
+  layoutType: "avatar-central" | "avatar-lateral" | "avatar-apresentador" | "texto-central" | "lista-itens";
 }
 
 interface LayoutModalProps {
@@ -24,7 +25,7 @@ const layouts: LayoutOption[] = [
     name: "Avatar Central",
     category: "Com avatar como protagonista",
     description: "Avatar em destaque no centro",
-    layoutType: "layout1",
+    layoutType: "avatar-central",
     thumbnail: (
       <div className="w-full h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded flex flex-col items-center justify-center p-1">
         <div className="w-6 h-6 bg-blue-300 rounded-full flex items-center justify-center text-blue-600 text-xs font-bold mb-1">
@@ -39,15 +40,15 @@ const layouts: LayoutOption[] = [
     name: "Avatar Lateral",
     category: "Com avatar como protagonista",
     description: "Avatar à esquerda com texto à direita",
-    layoutType: "layout2",
+    layoutType: "avatar-lateral",
     thumbnail: (
-      <div className="w-full h-16 bg-gradient-to-br from-green-100 to-green-200 rounded flex items-center gap-2 p-2">
-        <div className="w-6 h-6 bg-green-300 rounded-full flex items-center justify-center text-green-600 text-xs font-bold">
+      <div className="w-full h-16 bg-gradient-to-br from-teal-100 to-teal-200 rounded flex items-center gap-2 p-2">
+        <div className="w-6 h-6 bg-teal-300 rounded-full flex items-center justify-center text-teal-700 text-xs font-bold">
           A
         </div>
         <div className="flex-1 space-y-1">
-          <div className="w-full h-1 bg-green-300 rounded"></div>
-          <div className="w-3/4 h-1 bg-green-300 rounded"></div>
+          <div className="w-full h-1 bg-teal-300 rounded"></div>
+          <div className="w-3/4 h-1 bg-teal-300 rounded"></div>
         </div>
       </div>
     )
@@ -57,7 +58,7 @@ const layouts: LayoutOption[] = [
     name: "Avatar Apresentador",
     category: "Com avatar como protagonista",
     description: "Avatar como apresentador profissional",
-    layoutType: "layout3",
+    layoutType: "avatar-apresentador",
     thumbnail: (
       <div className="w-full h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded flex flex-col items-center justify-center p-1">
         <div className="w-8 h-8 bg-purple-300 rounded-full flex items-center justify-center text-purple-600 text-xs font-bold mb-1">
@@ -77,7 +78,7 @@ const layouts: LayoutOption[] = [
     name: "Texto Central",
     category: "Com texto como protagonista",
     description: "Texto em destaque no centro",
-    layoutType: "layout4",
+    layoutType: "texto-central",
     thumbnail: (
       <div className="w-full h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded flex flex-col items-center justify-center gap-1 p-2">
         <div className="w-12 h-1 bg-orange-300 rounded"></div>
@@ -90,7 +91,7 @@ const layouts: LayoutOption[] = [
     name: "Lista de Itens",
     category: "Com texto como protagonista",
     description: "Lista organizada de informações",
-    layoutType: "layout5",
+    layoutType: "lista-itens",
     thumbnail: (
       <div className="w-full h-16 bg-gradient-to-br from-red-100 to-red-200 rounded flex flex-col justify-center gap-1 p-2">
         <div className="flex items-center gap-2">
@@ -155,8 +156,8 @@ export function LayoutModal({ selectedLayout, onSelectLayout, onClose }: LayoutM
                     onClick={() => handleLayoutSelect(layout.id, layout.layoutType)}
                   >
                     <div className="space-y-2">
-                      <div className="relative">
-                        {layout.thumbnail}
+                      <div className="relative w-24 h-16 mx-auto">
+                        <LayoutThumbnail layoutId={layout.layoutType} />
                         {selectedLayout === layout.id && (
                           <div className="absolute top-1 right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
                             <Check className="w-3 h-3 text-primary-foreground" />
