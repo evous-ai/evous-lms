@@ -29,6 +29,7 @@ import {
   Play,
   Upload,
   XCircle,
+  Pencil,
 } from "lucide-react";
 import { Avatar as ShadcnAvatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import LayoutThumbnail from "@/components/layout-thumbnail";
@@ -171,8 +172,11 @@ function DynamicSceneForm({ scene, onUpdateScene, onMediaUpload, onAIGeneration,
     });
   };
 
-  const assetSlots = layoutTemplate.assetFields.map(field => getAssetByField(scene, field));
-  const showAtivos = layoutTemplate.assetFields.length > 0;
+  const assetSlots = layoutTemplate.assetFields
+    // Remover avatarImage do painel de ativos
+    .filter(field => field !== 'avatarImage')
+    .map(field => getAssetByField(scene, field));
+  const showAtivos = layoutTemplate.assetFields.filter(f => f !== 'avatarImage').length > 0;
   const showTextos = layoutTemplate.textFields.length > 0;
 
   return (
@@ -184,7 +188,7 @@ function DynamicSceneForm({ scene, onUpdateScene, onMediaUpload, onAIGeneration,
           <div className="space-y-4">
             {layoutTemplate.textFields.map(field => (
               <div key={field}>
-                <label className="text-sm font-semibold mb-2 block capitalize">{field}</label>
+                <label className="text-sm font-semibold mb-2 block capitalize">{field === 'descricao' ? 'Descrição' : field.charAt(0).toUpperCase() + field.slice(1)}</label>
                 <input
                   className="w-full rounded border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   value={scene.texts[field as keyof SceneTexts] || ''}
@@ -215,50 +219,56 @@ function DynamicSceneForm({ scene, onUpdateScene, onMediaUpload, onAIGeneration,
           <h2 className="text-sm font-semibold mb-2 uppercase tracking-wider text-muted-foreground">Ativos</h2>
           <div className="space-y-3">
             <div className="flex gap-2 flex-wrap">
-              {layoutTemplate.assetFields.map((field, idx) => {
-                const asset = assetSlots[idx];
-                return (
-                  <div key={field} className="relative group cursor-pointer w-20 h-20">
-                    {asset?.url ? (
-                      <div className="w-20 h-20 bg-muted rounded-lg border border-border flex items-center justify-center overflow-hidden">
-                        <Image src={asset.url} alt={asset.name || asset.type} width={80} height={80} className="object-contain w-full h-full" />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute -top-1 -right-1 h-5 w-5 bg-destructive text-destructive-foreground hover:bg-destructive/90 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => onRemoveAsset(field)}
+              {layoutTemplate.assetFields
+                .filter(field => field !== 'avatarImage')
+                .map((field, idx) => {
+                  const asset = assetSlots[idx];
+                  return (
+                    <div key={field} className="relative group cursor-pointer w-20 h-20">
+                      {asset?.url ? (
+                        <div className="w-20 h-20 bg-muted rounded-lg border border-border flex items-center justify-center overflow-hidden">
+                          <Image src={asset.url} alt={asset.name || asset.type} width={80} height={80} className="object-contain w-full h-full" />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute -top-1 -right-1 h-5 w-5 bg-destructive text-destructive-foreground hover:bg-destructive/90 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => onRemoveAsset(field)}
+                          >
+                            <XCircle className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div 
+                          className="w-20 h-20 bg-muted rounded-lg border border-dashed border-border flex flex-col items-center justify-center overflow-hidden relative text-center"
+                          onClick={() => onMediaUpload(field)}
                         >
-                          <XCircle className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <div 
-                        className="w-20 h-20 bg-muted rounded-lg border border-dashed border-border flex flex-col items-center justify-center overflow-hidden relative text-center"
-                        onClick={() => onMediaUpload(field)}
-                      >
-                        <Upload className="w-4 h-4 text-muted-foreground mb-1"/>
-                        <span className="text-xs text-muted-foreground capitalize">{field}</span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                          <Upload className="w-4 h-4 text-muted-foreground mb-1"/>
+                          <span className="text-xs text-muted-foreground capitalize">{field}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
             <div className="flex gap-2 mt-2">
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => onMediaUpload(layoutTemplate.assetFields[0])}
-              >
-                <Upload className="w-4 h-4" /> Inserir mídia
-              </Button>
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => onAIGeneration(layoutTemplate.assetFields[0])}
-              >
-                <Sparkles className="w-4 h-4" /> Gerar com IA
-              </Button>
+              {layoutTemplate.assetFields.filter(f => f !== 'avatarImage').length > 0 && (
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  onClick={() => onMediaUpload(layoutTemplate.assetFields.filter(f => f !== 'avatarImage')[0])}
+                >
+                  <Upload className="w-4 h-4" /> Inserir mídia
+                </Button>
+              )}
+              {layoutTemplate.assetFields.filter(f => f !== 'avatarImage').length > 0 && (
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  onClick={() => onAIGeneration(layoutTemplate.assetFields.filter(f => f !== 'avatarImage')[0])}
+                >
+                  <Sparkles className="w-4 h-4" /> Gerar com IA
+                </Button>
+              )}
             </div>
           </div>
         </section>
@@ -290,13 +300,29 @@ function DynamicScenePreview({ scene }: { scene: Scene }) {
             />
           )}
           {frameImage && (
-            <div className="absolute right-10 top-1/2 -translate-y-1/2 w-48 h-48 flex items-center justify-center">
+            <div
+              className="absolute"
+              style={{
+                right: '8%',
+                top: '50%',
+                transform: 'translateY(-50%) scale(1.1)',
+                width: '36%',
+                height: '60%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10,
+                marginLeft: '-20px',
+                aspectRatio: '1/1', // círculo perfeito
+                borderRadius: '50%', // círculo perfeito
+                overflow: 'hidden', // máscara
+              }}
+            >
               <Image
                 src={frameImage.url}
                 alt="Frame decorativo"
-                width={192}
-                height={192}
-                className="w-48 h-48 object-cover rounded-full shadow-lg"
+                fill
+                style={{ objectFit: 'cover' }}
               />
             </div>
           )}
@@ -410,6 +436,17 @@ const AVATARS = [
   { name: 'João Silva', url: '/avatar_default.png' },
   { name: 'Maria Santos', url: '/avatar_default_003.png' },
   { name: 'Carlos Oliveira', url: '/avatar_default_002.png' },
+];
+
+// Lista dinâmica de imagens de IA disponíveis
+const IA_SAMPLE_IMAGES = [
+  '/evous_sample_asset_IA_001.png',
+  '/evous_sample_asset_IA_002.png',
+  '/evous_sample_asset_IA_003.png',
+  '/evous_sample_asset_IA_004.png',
+  '/evous_sample_asset_IA_005.png',
+  '/evous_sample_asset_IA_006.png',
+  // Adicione mais arquivos seguindo o padrão acima
 ];
 
 export default function VideoPreviewPage() {
@@ -611,8 +648,23 @@ export default function VideoPreviewPage() {
     handleAssetUpdate(URL.createObjectURL(file), file.name);
   };
   
+  // Substituir handleAIGenerationModal para simular geração de IA
   const handleAIGenerationModal = () => {
-    handleAssetUpdate('/placeholder-ai-generated.png', 'AI Generated Image');
+    // Escolher uma imagem aleatória do diretório
+    const randomIndex = Math.floor(Math.random() * IA_SAMPLE_IMAGES.length);
+    const randomImage = IA_SAMPLE_IMAGES[randomIndex];
+    const name = `Imagem IA ${randomIndex + 1}`;
+    // Sempre substituir/inserir apenas o frameImage
+    const newAsset: Asset = { id: 'frameImage', type: 'frameImage', url: randomImage, name };
+    updateScene({
+      ...selectedScene,
+      assets: [
+        // Mantém todos os assets exceto frameImage
+        ...selectedScene.assets.filter(a => a.id !== 'frameImage'),
+        newAsset
+      ]
+    });
+    setActiveAssetField(null);
   };
 
   const handleVideoGenerationConfirm = () => {
@@ -652,10 +704,11 @@ export default function VideoPreviewPage() {
               />
             ) : (
               <div 
-                className="text-xl font-semibold cursor-pointer hover:bg-muted transition-colors px-2 py-1 rounded"
+                className="group text-xl font-semibold cursor-pointer hover:bg-muted transition-colors px-2 py-1 rounded flex items-center gap-2"
                 onClick={() => setIsEditingTitle(true)}
               >
-                {videoTitle}
+                <span>{videoTitle}</span>
+                <Pencil className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ml-1" />
               </div>
             )}
           </div>

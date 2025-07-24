@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Pause, Check, Music } from "lucide-react";
@@ -65,12 +65,13 @@ const soundtracks: Soundtrack[] = [
 
 export function SoundtrackModal({ selectedSoundtrack, onSelectSoundtrack, onClose }: SoundtrackModalProps) {
   const [playingSoundtrack, setPlayingSoundtrack] = useState<string | null>(null);
-  const [audioRefs, setAudioRefs] = useState<Record<string, HTMLAudioElement>>({});
+  const audioRefs = useRef<Record<string, HTMLAudioElement>>({});
 
   // Parar todos os áudios quando o modal for fechado
   useEffect(() => {
+    const audioRefsSnapshot = audioRefs.current;
     return () => {
-      Object.values(audioRefs).forEach(audio => {
+      Object.values(audioRefsSnapshot).forEach(audio => {
         if (audio) {
           audio.pause();
           audio.currentTime = 0;
@@ -78,7 +79,7 @@ export function SoundtrackModal({ selectedSoundtrack, onSelectSoundtrack, onClos
       });
       setPlayingSoundtrack(null);
     };
-  }, [audioRefs]);
+  }, []);
 
   const handleSoundtrackSelect = (soundtrackId: string) => {
     onSelectSoundtrack(soundtrackId);
@@ -87,88 +88,40 @@ export function SoundtrackModal({ selectedSoundtrack, onSelectSoundtrack, onClos
 
   const handlePlayPreview = (soundtrackId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    
     // Se clicou no mesmo, para o áudio
     if (playingSoundtrack === soundtrackId) {
-      if (audioRefs[soundtrackId]) {
-        audioRefs[soundtrackId].pause();
-        audioRefs[soundtrackId].currentTime = 0;
+      const audio = audioRefs.current[soundtrackId];
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
       }
       setPlayingSoundtrack(null);
       return;
     }
-    
     // Parar áudio anterior se estiver tocando
-    if (playingSoundtrack && audioRefs[playingSoundtrack]) {
-      audioRefs[playingSoundtrack].pause();
-      audioRefs[playingSoundtrack].currentTime = 0;
+    if (playingSoundtrack && audioRefs.current[playingSoundtrack]) {
+      audioRefs.current[playingSoundtrack].pause();
+      audioRefs.current[playingSoundtrack].currentTime = 0;
     }
-    
     // Tocar novo áudio
     const soundtrack = soundtracks.find(s => s.id === soundtrackId);
     if (soundtrack) {
-      try {
-        const audio = new Audio(soundtrack.audioUrl);
+      let audio = audioRefs.current[soundtrackId];
+      if (!audio) {
+        audio = new Audio(soundtrack.audioUrl);
         audio.volume = 0.5;
-        
         audio.addEventListener('ended', () => {
           setPlayingSoundtrack(null);
         });
-        
-        audio.addEventListener('error', () => {
-          console.log('Erro ao carregar áudio, usando fallback');
-          playSyntheticAudio(soundtrackId);
-        });
-        
-        audio.play().then(() => {
-          setPlayingSoundtrack(soundtrackId);
-          setAudioRefs(prev => ({ ...prev, [soundtrackId]: audio }));
-        }).catch(error => {
-          console.error('Erro ao tocar áudio:', error);
-          playSyntheticAudio(soundtrackId);
-        });
-      } catch (error) {
-        console.error('Erro ao criar áudio:', error);
-        playSyntheticAudio(soundtrackId);
+        audioRefs.current[soundtrackId] = audio;
       }
-    }
-  };
-
-  const playSyntheticAudio = (soundtrackId: string) => {
-    try {
-      const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      const frequencies = {
-        'soundtrack-1': 440,
-        'soundtrack-2': 523,
-        'soundtrack-3': 587,
-        'soundtrack-4': 659,
-        'soundtrack-5': 698,
-      };
-      
-      oscillator.frequency.setValueAtTime(frequencies[soundtrackId as keyof typeof frequencies] || 440, audioContext.currentTime);
-      oscillator.type = 'sine';
-      
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 1);
-      
-      setPlayingSoundtrack(soundtrackId);
-      
-      setTimeout(() => {
+      audio.currentTime = 0;
+      audio.play().then(() => {
+        setPlayingSoundtrack(soundtrackId);
+      }).catch(error => {
+        console.error('Erro ao tocar áudio:', error);
         setPlayingSoundtrack(null);
-      }, 1000);
-      
-    } catch (error) {
-      console.error('Erro ao criar áudio sintético:', error);
-      setPlayingSoundtrack(null);
+      });
     }
   };
 

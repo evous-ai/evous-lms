@@ -37,7 +37,8 @@ const data = {
   user: {
     name: "edgar.fonseca",
     email: "edgar.fonseca@evous.ai",
-    avatar: "/avatar_default.png",
+    // avatar: undefined, // Não usar imagem
+    initials: "EF",
   },
   teams: [
     {
