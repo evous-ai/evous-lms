@@ -9,7 +9,7 @@ interface LayoutOption {
   category: string;
   description: string;
   thumbnail: React.ReactNode;
-  layoutType: "avatar-central" | "avatar-lateral" | "avatar-apresentador" | "texto-central" | "lista-itens";
+  layoutType: "avatar-central" | "avatar-lateral" | "avatar-apresentador" | "texto-central" | "lista-itens" | "abertura" | "fechamento";
 }
 
 interface LayoutModalProps {
@@ -19,6 +19,25 @@ interface LayoutModalProps {
 }
 
 const layouts: LayoutOption[] = [
+  // Abertura
+  {
+    id: "layout-abertura",
+    name: "Abertura",
+    category: "Abertura/Fechamento",
+    description: "Tela de abertura com logo, título e descrição",
+    layoutType: "abertura",
+    thumbnail: (
+      <div className="w-full h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded flex items-center justify-start p-2 relative">
+        <div className="w-6 h-6 bg-slate-400 rounded-full flex items-center justify-center text-white text-xs font-bold absolute top-2 left-2">
+          L
+        </div>
+        <div className="flex-1 flex flex-col justify-center ml-10">
+          <div className="w-16 h-2 bg-slate-300 rounded mb-1"></div>
+          <div className="w-10 h-1 bg-slate-200 rounded"></div>
+        </div>
+      </div>
+    )
+  },
   // Com avatar como protagonista
   {
     id: "layout-avatar-1",
@@ -105,6 +124,21 @@ const layouts: LayoutOption[] = [
         <div className="flex items-center gap-2">
           <div className="w-1 h-1 bg-red-400 rounded-full"></div>
           <div className="w-10 h-1 bg-red-300 rounded"></div>
+        </div>
+      </div>
+    )
+  },
+  // Fechamento
+  {
+    id: "layout-fechamento",
+    name: "Fechamento",
+    category: "Abertura/Fechamento",
+    description: "Tela de fechamento com logo centralizado",
+    layoutType: "fechamento",
+    thumbnail: (
+      <div className="w-full h-16 bg-gradient-to-br from-slate-200 to-slate-300 rounded flex items-center justify-center p-2">
+        <div className="w-10 h-10 bg-slate-400 rounded-full flex items-center justify-center text-white text-xs font-bold">
+          L
         </div>
       </div>
     )

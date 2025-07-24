@@ -278,7 +278,8 @@ function DynamicScenePreview({ scene }: { scene: Scene }) {
   switch (scene.layoutId) {
     case 'abertura':
       return (
-        <div className="relative w-full h-full flex flex-col items-center justify-center aspect-video bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-xl overflow-hidden">
+        <div className="relative w-full h-full flex flex-col items-center justify-center aspect-video rounded-xl overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #132726 70%, #00826A 90%, #A7FFA2 100%)' }}>
           {logo && (
             <Image
               src={logo.url}
@@ -300,10 +301,10 @@ function DynamicScenePreview({ scene }: { scene: Scene }) {
             </div>
           )}
           <div className="flex flex-col items-center justify-center h-full w-1/2 text-left absolute left-10">
-              <h1 className="text-4xl font-bold text-slate-800 dark:text-slate-200 mb-4 w-full">
+              <h1 className="text-4xl font-bold text-white mb-4 w-full">
                 {scene.texts.titulo || 'Título de abertura'}
               </h1>
-              <p className="text-2xl text-slate-600 dark:text-slate-400 w-full">
+              <p className="text-2xl text-[#A7FFA2] w-full">
                 {scene.texts.descricao || 'Descrição da abertura...'}
               </p>
           </div>
@@ -311,21 +312,24 @@ function DynamicScenePreview({ scene }: { scene: Scene }) {
       );
     case 'avatar-central':
       return (
-        <div className="relative w-full h-full flex items-center justify-center aspect-video bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-xl">
+        <div className="relative w-full h-full flex items-end justify-center aspect-video rounded-xl overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #132726 70%, #00826A 90%, #A7FFA2 100%)' }}>
           {avatar && (
-            <Image
-              src={avatar.url}
-              alt="Avatar"
-              width={200}
-              height={200}
-              className="w-52 h-52 object-contain rounded-full shadow-xl bg-white"
-            />
+            <div style={{ position: 'relative', width: '100%', height: '90%' }}>
+              <Image
+                src={avatar.url}
+                alt="Avatar"
+                fill
+                style={{ objectFit: 'contain' }}
+              />
+            </div>
           )}
         </div>
       );
     case 'avatar-lateral':
       return (
-        <div className="w-full h-full flex items-center p-8 gap-8 aspect-video bg-gradient-to-br from-teal-100 to-teal-200 dark:from-teal-900 dark:to-teal-800 rounded-xl">
+        <div className="w-full h-full flex items-center p-8 gap-8 aspect-video rounded-xl"
+          style={{ background: 'linear-gradient(135deg, #132726 70%, #00826A 90%, #A7FFA2 100%)' }}>
           {avatar && (
             <Image
               src={avatar.url}
@@ -336,14 +340,15 @@ function DynamicScenePreview({ scene }: { scene: Scene }) {
             />
           )}
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-3">{scene.texts.titulo || 'Título'}</h1>
-            <p className="text-lg text-slate-600 dark:text-slate-400">{scene.texts.subtitulo || 'Subtítulo...'}</p>
+            <h1 className="text-2xl font-bold text-white mb-3">{scene.texts.titulo || 'Título'}</h1>
+            <p className="text-lg text-[#A7FFA2]">{scene.texts.subtitulo || 'Subtítulo...'}</p>
           </div>
         </div>
       );
     case 'avatar-apresentador':
         return (
-          <div className="w-full h-full flex items-end p-8 gap-8 aspect-video bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-xl">
+          <div className="w-full h-full flex items-end p-8 gap-8 aspect-video rounded-xl"
+            style={{ background: 'linear-gradient(135deg, #132726 70%, #00826A 90%, #A7FFA2 100%)' }}>
             {avatar && (
               <Image
                 src={avatar.url}
@@ -354,39 +359,44 @@ function DynamicScenePreview({ scene }: { scene: Scene }) {
               />
             )}
             <div className="flex-1 mb-8">
-              <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-3">{scene.texts.titulo || 'Título'}</h1>
-              <p className="text-lg text-slate-600 dark:text-slate-400">{scene.texts.subtitulo || 'Subtítulo...'}</p>
+              <h1 className="text-2xl font-bold text-white mb-3">{scene.texts.titulo || 'Título'}</h1>
+              <p className="text-lg text-[#A7FFA2]">{scene.texts.subtitulo || 'Subtítulo...'}</p>
             </div>
           </div>
         );
     case 'texto-central':
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center p-8 aspect-video bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-xl">
-          <h1 className="text-4xl font-bold text-slate-800 dark:text-slate-200 mb-6 leading-tight">{scene.texts.titulo || 'Título'}</h1>
-          <p className="text-2xl text-slate-600 dark:text-slate-400 leading-relaxed">{scene.texts.subtitulo || 'Subtítulo...'}</p>
+        <div className="w-full h-full flex flex-col items-center justify-center p-8 aspect-video rounded-xl"
+          style={{ background: 'linear-gradient(135deg, #132726 70%, #00826A 90%, #A7FFA2 100%)' }}>
+          <h1 className="text-4xl font-bold text-white mb-6 leading-tight">{scene.texts.titulo || 'Título'}</h1>
+          <p className="text-2xl text-[#A7FFA2] leading-relaxed">{scene.texts.subtitulo || 'Subtítulo...'}</p>
         </div>
       );
     case 'lista-itens':
       return (
-        <div className="w-full h-full flex flex-col p-8 aspect-video bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-xl">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-200">{scene.texts.titulo || 'Título'}</h1>
+        <div className="w-full h-full flex flex-col p-8 aspect-video rounded-xl"
+          style={{ background: 'linear-gradient(135deg, #132726 70%, #00826A 90%, #A7FFA2 100%)' }}>
+          <div className="text-center mb-6">
+            <h1 className="text-3xl font-bold text-white">{scene.texts.titulo || 'Título'}</h1>
           </div>
-          <div className="flex-1 grid grid-cols-2 gap-6 max-w-4xl mx-auto w-full">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="flex items-center gap-4 p-4 bg-white/80 dark:bg-slate-800/80 rounded-lg shadow-md">
-                <div className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
-                <span className="text-lg font-medium text-slate-800 dark:text-slate-200">
-                  {scene.texts[`item${i}` as keyof SceneTexts] || `Item ${i}`}
-                </span>
-              </div>
-            ))}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="grid grid-cols-2 grid-rows-2 gap-x-4 gap-y-2 w-full max-w-4xl">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="flex items-center gap-3 p-3 bg-white rounded-2xl shadow-md min-h-[52px] h-[52px] w-full">
+                  <div className="w-3 h-3 bg-[#00826A] rounded-full flex-shrink-0"></div>
+                  <span className="text-lg font-medium text-black">
+                    {scene.texts[`item${i}` as keyof SceneTexts] || `Item ${i}`}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       );
     case 'fechamento':
       return (
-        <div className="w-full h-full flex items-center justify-center aspect-video bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-xl">
+        <div className="w-full h-full flex items-center justify-center aspect-video rounded-xl"
+          style={{ background: 'linear-gradient(135deg, #132726 70%, #00826A 90%, #A7FFA2 100%)' }}>
           {logo && <Image src={logo.url} alt="Logo" width={192} height={192} className="w-48 h-48 object-contain" />}
         </div>
       );
@@ -409,14 +419,20 @@ export default function VideoPreviewPage() {
       layoutId: "abertura",
       texts: {
         titulo: "Você sabia?",
-        descricao: "A IA pode automatizar até 40% do seu tempo de trabalho."
+        descricao: "A IA pode automatizar até 40% do seu tempo de trabalho.",
+        narracao: "Você sabia que a inteligência artificial pode automatizar até 40% do seu tempo de trabalho? Isso significa mais foco no que realmente importa."
       },
-      assets: [{ id: 'logo', type: 'logo', url: '/evous_logo_box.svg', name: 'Logo' }]
+      assets: [
+        { id: 'logo', type: 'logo', url: '/evous_logo.svg', name: 'Logo' },
+        { id: 'frameImage', type: 'image', url: '/sample_asset_evous.png', name: 'Asset decorativo' }
+      ]
     },
     {
       id: "scene-2",
       layoutId: "avatar-central",
-      texts: {},
+      texts: {
+        narracao: "Com o apoio da IA, tarefas repetitivas e processos demorados são resolvidos em segundos, liberando tempo e energia para a inovação."
+      },
       // CORRIGIDO: O 'id' do asset deve corresponder ao 'assetField' ('avatarImage') para a remoção funcionar.
       assets: [{ id: 'avatarImage', type: 'avatar', url: '/avatar_default.png', name: 'Avatar padrão' }]
     },
@@ -428,15 +444,18 @@ export default function VideoPreviewPage() {
         item1: "Mais tempo livre",
         item2: "Menos erros",
         item3: "Resultados mais rápidos",
-        item4: "Relatórios automáticos"
+        item4: "Relatórios automáticos",
+        narracao: "Veja só os benefícios: mais tempo livre, menos erros, resultados mais rápidos e relatórios automáticos. Tudo isso com o poder da IA."
       },
       assets: []
     },
     {
       id: "scene-4",
       layoutId: "fechamento",
-      texts: {},
-      assets: [{ id: 'logo', type: 'logo', url: '/evous_logo_box.svg', name: 'Logo' }]
+      texts: {
+        narracao: "Chegou a hora de transformar a sua rotina com inteligência artificial. Evolua com a Evous."
+      },
+      assets: [{ id: 'logo', type: 'logo', url: '/evous_logo.svg', name: 'Logo' }]
     }
   ];
 
@@ -660,7 +679,9 @@ export default function VideoPreviewPage() {
                   <Combobox
                     options={sceneOptions}
                     value={selectedSceneId}
-                    onValueChange={setSelectedSceneId}
+                    onValueChange={id => {
+                      if (id !== selectedSceneId) setSelectedSceneId(id);
+                    }}
                     placeholder="Selecionar cena..."
                     searchPlaceholder="Buscar cena..."
                     emptyText="Nenhuma cena encontrada."
@@ -731,7 +752,7 @@ export default function VideoPreviewPage() {
                         <Layout className="w-4 h-4" /> Mudar layout
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
-                        <LayoutModal selectedLayout={selectedScene.layoutId} onSelectLayout={(id) => handleLayoutSelect(id)} onClose={() => {}}/>
+                        <LayoutModal selectedLayout={selectedScene.layoutId} onSelectLayout={(_, layoutType) => handleLayoutSelect(layoutType)} onClose={() => {}}/>
                       </NavigationMenuContent>
                     </NavigationMenuItem>
                   </NavigationMenuList>
