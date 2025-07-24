@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useReducer } from "react";
+import { useState, useReducer, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/toggle-theme";
 import { Separator } from "@/components/ui/separator";
@@ -30,6 +30,7 @@ import {
   Upload,
   XCircle,
   Pencil,
+  Pause,
 } from "lucide-react";
 import { Avatar as ShadcnAvatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import LayoutThumbnail from "@/components/layout-thumbnail";
@@ -449,6 +450,35 @@ const IA_SAMPLE_IMAGES = [
   // Adicione mais arquivos seguindo o padrão acima
 ];
 
+// Adicionar lista de trilhas sonoras disponíveis
+const SOUNDTRACKS = [
+  {
+    id: "soundtrack-1",
+    name: "This is Kids",
+    audioUrl: "/1 This is Kids.mp3",
+  },
+  {
+    id: "soundtrack-2",
+    name: "Sport Action Regular",
+    audioUrl: "/Sport Action Regular.mp3",
+  },
+  {
+    id: "soundtrack-3",
+    name: "Short",
+    audioUrl: "/Short (1-07).mp3",
+  },
+  {
+    id: "soundtrack-4",
+    name: "The Motivational",
+    audioUrl: "/The Motivational.mp3",
+  },
+  {
+    id: "soundtrack-5",
+    name: "The Sport",
+    audioUrl: "/The Sport.wav",
+  },
+];
+
 export default function VideoPreviewPage() {
   const initialScenes: Scene[] = [
     {
@@ -510,6 +540,66 @@ export default function VideoPreviewPage() {
 
   const [videoTitle, setVideoTitle] = useState("Uma historinha colorida que ensina");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const playTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [selectedSoundtrack, setSelectedSoundtrack] = useState<typeof SOUNDTRACKS[0] | undefined>(undefined);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Avança para a próxima cena ou reseta para a primeira
+  const goToNextScene = () => {
+    const currentIndex = sceneList.findIndex(scene => scene.id === selectedSceneId);
+    if (currentIndex < sceneList.length - 1) {
+      setSelectedSceneId(sceneList[currentIndex + 1].id);
+    } else {
+      // Última cena: volta para a primeira e para a reprodução
+      setIsPlaying(false);
+      setSelectedSceneId(sceneList[0].id);
+    }
+  };
+
+  // Efeito para controlar reprodução automática
+  useEffect(() => {
+    if (isPlaying) {
+      playTimeoutRef.current = setTimeout(() => {
+        goToNextScene();
+      }, 4500); // 4.5 segundos por cena
+    } else if (playTimeoutRef.current) {
+      clearTimeout(playTimeoutRef.current);
+      playTimeoutRef.current = null;
+    }
+    return () => {
+      if (playTimeoutRef.current) {
+        clearTimeout(playTimeoutRef.current);
+        playTimeoutRef.current = null;
+      }
+    };
+  }, [isPlaying, selectedSceneId, sceneList.length]);
+
+  // Sincronizar áudio com play/pause
+  useEffect(() => {
+    if (!selectedSoundtrack || !audioRef.current) return;
+    if (isPlaying) {
+      (audioRef.current as HTMLAudioElement).play();
+    } else {
+      (audioRef.current as HTMLAudioElement).pause();
+    }
+  }, [isPlaying, selectedSoundtrack]);
+
+  // Parar áudio ao fim da timeline
+  useEffect(() => {
+    if (!selectedSoundtrack || !audioRef.current) return;
+    if (!isPlaying && audioRef.current) {
+      (audioRef.current as HTMLAudioElement).pause();
+    }
+  }, [isPlaying]);
+
+  // Resetar áudio ao voltar para Cena 1 após o fim
+  useEffect(() => {
+    if (!selectedSoundtrack || !audioRef.current) return;
+    if (!isPlaying && selectedSceneId === sceneList[0].id) {
+      (audioRef.current as HTMLAudioElement).currentTime = 0;
+    }
+  }, [isPlaying, selectedSceneId, selectedSoundtrack, sceneList]);
 
   const selectedScene = sceneList.find(scene => scene.id === selectedSceneId) || sceneList[0];
 
@@ -797,7 +887,14 @@ export default function VideoPreviewPage() {
                             <Music className="w-4 h-4" /> Trilha sonora
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
-                            <SoundtrackModal selectedSoundtrack={undefined} onSelectSoundtrack={() => {}} onClose={() => {}}/>
+                            <SoundtrackModal
+                              selectedSoundtrack={selectedSoundtrack?.id}
+                              onSelectSoundtrack={id => {
+                                const found = SOUNDTRACKS.find(s => s.id === id);
+                                setSelectedSoundtrack(found);
+                              }}
+                              onClose={() => {}}
+                            />
                         </NavigationMenuContent>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
@@ -821,7 +918,14 @@ export default function VideoPreviewPage() {
 
               <footer className="bg-card border border-border rounded-xl px-6 py-4 flex-shrink-0 absolute left-0 right-0 bottom-4 z-10 w-full max-w-5xl mx-auto" style={{boxShadow: '0 4px 24px 0 rgba(0,0,0,0.10)'}}>
                 <div className="flex items-center gap-4 w-full overflow-hidden">
-                  <Button variant="outline" size="icon" className="rounded-full p-2" disabled><Play className="w-5 h-5" /></Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full p-2"
+                    onClick={() => setIsPlaying(prev => !prev)}
+                  >
+                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                  </Button>
                   <div className="flex gap-4 overflow-x-auto flex-1 min-w-0 pb-2">
                     {sceneList.map((scene, index) => (
                       <div 
@@ -844,6 +948,15 @@ export default function VideoPreviewPage() {
                   </div>
                 </div>
               </footer>
+              {selectedSoundtrack && (
+                <div className="w-full flex justify-center mt-2">
+                  <Badge variant="secondary" className="flex items-center gap-2 justify-center" style={{ minWidth: 120, width: `${sceneList.length * 8}rem`, maxWidth: '100%' }}>
+                    <Music className="w-4 h-4 mr-1" />
+                    {selectedSoundtrack.name}
+                  </Badge>
+                  <audio ref={audioRef} src={selectedSoundtrack.audioUrl} preload="auto" />
+                </div>
+              )}
             </div>
           </main>
         </div>
