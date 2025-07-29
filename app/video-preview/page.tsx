@@ -19,6 +19,21 @@ import { AIGenerationModal } from "@/components/modals/ai-generation-modal";
 import { VideoGenerationModal } from "@/components/modals/video-generation-modal";
 import { UndoRedoButtons } from "@/components/undo-redo-buttons";
 import { AudioPlayButton } from "@/components/audio-play-button";
+import { DraggableSceneThumbnail } from "@/components/draggable-scene-thumbnail";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import {
   ArrowLeft,
   UserPlus,
@@ -35,7 +50,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Avatar as ShadcnAvatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import LayoutThumbnail from "@/components/layout-thumbnail";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import Image from "next/image";
@@ -752,6 +766,29 @@ export default function VideoPreviewPage() {
     updateSceneList(sceneList.map(scene => scene.id === updatedScene.id ? updatedScene : scene));
     forceUpdate();
   };
+
+  // Função para reordenar cenas via drag and drop
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = sceneList.findIndex(scene => scene.id === active.id);
+      const newIndex = sceneList.findIndex(scene => scene.id === over?.id);
+
+      const newSceneList = arrayMove(sceneList, oldIndex, newIndex);
+      updateSceneList(newSceneList);
+    }
+  };
+
+  // Configurar sensores para drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Distância mínima para ativar o drag
+      },
+    }),
+    useSensor(KeyboardSensor)
+  );
   
   /**
    * CORRIGIDO: Lógica para verificar corretamente os campos de texto que serão perdidos
@@ -1118,49 +1155,45 @@ export default function VideoPreviewPage() {
                       {formatTime(currentTime)} / {formatTime(totalDuration)}
                     </span>
                   </div>
-                  <div className="flex gap-4 overflow-x-auto flex-1 min-w-0 pb-2">
-                    {sceneList.map((scene, index) => {
-                      const isCurrent = selectedSceneId === scene.id;
-                      // Calcular progresso da barra para a cena atual
-                      let progress = 0;
-                      if (isPlaying && isCurrent) {
-                        const currentSceneIndex = sceneList.findIndex(s => s.id === selectedSceneId);
-                        const sceneStart = currentSceneIndex * SCENE_DURATION;
-                        const elapsed = Math.max(0, Math.min(currentTime - sceneStart, SCENE_DURATION));
-                        progress = elapsed / SCENE_DURATION;
-                      }
-                      return (
-                        <div 
-                          key={scene.id}
-                          className={`group relative w-32 h-20 bg-muted rounded-lg border-2 shadow-sm cursor-pointer overflow-hidden flex-shrink-0 ${isCurrent ? 'border-primary' : 'border-transparent hover:border-primary/50'}`}
-                          onClick={() => setSelectedSceneId(scene.id)}
-                        >
-                          <div className="w-full h-full pointer-events-none relative">
-                            <LayoutThumbnail layoutId={scene.layoutId} />
-                            {/* Barra de progresso inferior simples */}
-                            {isPlaying && isCurrent && (
-                              <div
-                                className="absolute left-0 bottom-0 h-[3px] bg-green-600 rounded-full transition-all duration-100"
-                                style={{ width: `${progress * 100}%`, opacity: 0.85 }}
-                              />
-                            )}
-                          </div>
-                          <div className="absolute bottom-1 left-1"><Badge variant="secondary" className="text-xs bg-white/80 backdrop-blur-sm text-black">Cena {index + 1}</Badge></div>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="absolute top-1 right-1 h-6 w-6 text-muted-foreground hover:text-destructive bg-white/80 backdrop-blur-sm opacity-0 group-hover:opacity-100" 
-                            onClick={(e) => { e.stopPropagation(); deleteScene(scene.id); }}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      );
-                    })}
-                    <Button variant="outline" className="w-32 h-20 border-dashed border-2 rounded-lg text-xs flex items-center justify-center shadow-sm gap-2 flex-shrink-0" onClick={addNewScene}>
-                      <Plus className="w-4 h-4" /> Adicionar cena
-                    </Button>
-                  </div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={sceneList.map(scene => scene.id)}
+                      strategy={horizontalListSortingStrategy}
+                    >
+                      <div className="flex gap-4 overflow-x-auto flex-1 min-w-0 pb-2">
+                        {sceneList.map((scene, index) => {
+                          const isCurrent = selectedSceneId === scene.id;
+                          // Calcular progresso da barra para a cena atual
+                          let progress = 0;
+                          if (isPlaying && isCurrent) {
+                            const currentSceneIndex = sceneList.findIndex(s => s.id === selectedSceneId);
+                            const sceneStart = currentSceneIndex * SCENE_DURATION;
+                            const elapsed = Math.max(0, Math.min(currentTime - sceneStart, SCENE_DURATION));
+                            progress = elapsed / SCENE_DURATION;
+                          }
+                          return (
+                            <DraggableSceneThumbnail
+                              key={scene.id}
+                              scene={scene}
+                              index={index}
+                              isCurrent={isCurrent}
+                              isPlaying={isPlaying}
+                              progress={progress}
+                              onSelect={() => setSelectedSceneId(scene.id)}
+                              onDelete={(e) => { e.stopPropagation(); deleteScene(scene.id); }}
+                            />
+                          );
+                        })}
+                        <Button variant="outline" className="w-32 h-20 border-dashed border-2 rounded-lg text-xs flex items-center justify-center shadow-sm gap-2 flex-shrink-0" onClick={addNewScene}>
+                          <Plus className="w-4 h-4" /> Adicionar cena
+                        </Button>
+                      </div>
+                    </SortableContext>
+                  </DndContext>
                 </div>
               </footer>
               {selectedSoundtrack && (
