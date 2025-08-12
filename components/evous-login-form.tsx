@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -53,6 +54,28 @@ export function EvousLoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6 w-full", className)} {...props}>
+      {/* Logo Evous – 1 visível por vez via Tailwind (sem JS) */}
+      <div className="flex justify-center mb-4">
+        {/* Light Mode: logo claro */}
+        <Image
+          src="/evous_logo_light.svg"
+          alt="Evous"
+          width={160}
+          height={42}
+          className="h-10 w-auto block dark:hidden"
+          priority
+        />
+        {/* Dark Mode: logo escuro */}
+        <Image
+          src="/evous_logo.svg"
+          alt="Evous"
+          width={160}
+          height={42}
+          className="h-10 w-auto hidden dark:block"
+          priority
+        />
+      </div>
+
       <Card className="w-full">
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Bem-vindo de volta</CardTitle>
