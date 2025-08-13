@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link';
-import { AppSidebar } from "@/components/app-sidebar";
+import { LMSSidebar } from "@/components/lms-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
@@ -63,7 +63,7 @@ export default function TrajetoriaVibraPage() {
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <LMSSidebar />
       <SidebarInset>
         <div className="flex flex-1 flex-col gap-6 p-6 bg-slate-50 dark:bg-gray-950">
           {/* Breadcrumb */}

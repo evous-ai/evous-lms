@@ -1,7 +1,7 @@
 
 "use client"
 
-import { AppSidebar } from "@/components/app-sidebar";
+import { LMSSidebar } from "@/components/lms-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
@@ -59,7 +59,7 @@ export default function Aula3GovernancaCulturaPage() {
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <AppSidebar />
+      <LMSSidebar />
       <SidebarInset 
         className="!bg-slate-50 dark:!bg-gray-950"
         style={{ backgroundColor: 'var(--background)' }}

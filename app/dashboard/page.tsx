@@ -1,6 +1,6 @@
 "use client"
 
-import { AppSidebar } from "@/components/app-sidebar"
+import { LMSSidebar } from "@/components/lms-sidebar"
 import {
   SidebarInset,
   SidebarProvider,
@@ -161,7 +161,7 @@ export default function Page() {
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <LMSSidebar />
       <SidebarInset>
         <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 bg-background">
           {/* Mensagem de Boas-vindas */}
