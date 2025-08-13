@@ -10,14 +10,10 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Play, Clock, BookOpen, Target, Star, ChevronRight, Video } from 'lucide-react';
+
+import { Play, Clock, BookOpen, Target, Star } from 'lucide-react';
 import { useState } from 'react';
+import { CourseModulesList } from '@/components/course';
 
 // Dados estáticos da trilha
 const curso = {
@@ -69,7 +65,7 @@ export default function TrajetoriaVibraPage() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <div className="flex flex-1 flex-col gap-6 p-6 bg-background">
+        <div className="flex flex-1 flex-col gap-6 p-6 bg-slate-50 dark:bg-gray-950">
           {/* Breadcrumb */}
           <Breadcrumb>
             <BreadcrumbList>
@@ -116,7 +112,7 @@ export default function TrajetoriaVibraPage() {
                 </div>
               </div>
               
-              <div className="flex flex-col gap-3 min-w-fit">
+              <div className="flex flex-col gap-3 min-w-fit justify-center">
                 <Button 
                   size="lg"
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 text-base font-semibold transition-all duration-200"
@@ -125,17 +121,6 @@ export default function TrajetoriaVibraPage() {
                   <Link href="/trilha/trajetoria-vibra/aula-3-governanca-cultura" className="flex items-center gap-2">
                     <Play className="h-5 w-5" />
                     Continuar curso
-                  </Link>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
-                  asChild
-                >
-                  <Link href="#modulos" className="flex items-center gap-2">
-                    Ver todos os módulos
-                    <ChevronRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </div>
@@ -167,74 +152,17 @@ export default function TrajetoriaVibraPage() {
               </div>
             </div>
             
-            <Accordion 
-              type="multiple" 
-              value={accordionValue} 
-              onValueChange={setAccordionValue}
-              className="space-y-4"
-            >
-              {curso.modulos.map((modulo) => (
-                <AccordionItem 
-                  key={modulo.id} 
-                  value={modulo.id}
-                  className="bg-card border border-border rounded-lg data-[state=open]:border-slate-300 dark:data-[state=open]:border-slate-600"
-                >
-                  <AccordionTrigger className="p-4 bg-muted hover:bg-muted/80 dark:bg-muted/50 dark:hover:bg-muted/70 rounded-t-lg data-[state=open]:rounded-t-lg data-[state=closed]:rounded-lg transition-colors">
-                    <div className="flex justify-between items-center w-full pr-4">
-                      <div className="text-left">
-                        <h3 className="text-lg font-semibold text-foreground">{modulo.titulo}</h3>
-                        <p className="text-sm text-muted-foreground">{modulo.resumo}</p>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  
-                  <AccordionContent className="p-4 space-y-3">
-                    {modulo.aulas.map((aula) => (
-                      <div 
-                        key={aula.id} 
-                        className="flex items-center justify-between py-3 px-3 hover:bg-muted/50 hover:border-l-4 hover:border-l-emerald-200 dark:hover:border-l-emerald-700 rounded-lg transition-all duration-200 cursor-pointer group"
-                      >
-                        <div className="flex items-center gap-3 flex-1">
-                          {/* Status da aula */}
-                          {aula.status === 'concluida' && (
-                            <div className="w-4 h-4 bg-emerald-500 rounded-full flex-shrink-0 group-hover:scale-110 transition-transform"></div>
-                          )}
-                          {aula.status === 'disponivel' && (
-                            <div className="w-4 h-4 border-2 border-muted-foreground/30 rounded-full flex-shrink-0 group-hover:border-emerald-300 dark:group-hover:border-emerald-600 group-hover:scale-110 transition-all"></div>
-                          )}
-                          
-                          {/* Ícone de vídeo */}
-                          <Video className="h-4 w-4 text-muted-foreground group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors" />
-                          
-                          {/* Título da aula */}
-                          <span className="text-sm text-foreground group-hover:text-foreground transition-colors">
-                            {aula.titulo}
-                          </span>
-                        </div>
-                        
-                        {/* Duração */}
-                        <span className="text-xs text-muted-foreground group-hover:text-muted-foreground transition-colors">
-                          {aula.duracao}
-                        </span>
-                        
-                        {/* Botão Assistir para aulas disponíveis */}
-                        {(aula.status === 'disponivel' || aula.status === 'concluida') && (
-                          <Button
-                            size="sm"
-                            className="bg-emerald-700 hover:bg-emerald-800 text-white"
-                            asChild
-                          >
-                            <Link href={`/trilha/trajetoria-vibra/${aula.id}`}>
-                              Assistir
-                            </Link>
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+            <CourseModulesList
+              modulos={curso.modulos}
+              expandedModules={accordionValue}
+              onModuleToggle={(moduleId) => {
+                if (accordionValue.includes(moduleId)) {
+                  setAccordionValue(accordionValue.filter(id => id !== moduleId));
+                } else {
+                  setAccordionValue([...accordionValue, moduleId]);
+                }
+              }}
+            />
           </div>
         </div>
       </SidebarInset>

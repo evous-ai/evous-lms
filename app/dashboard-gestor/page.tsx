@@ -7,7 +7,7 @@ import { ArrowLeft, Users, BarChart3, Settings, Activity } from 'lucide-react';
 
 export default function DashboardGestor() {
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Navegação */}
         <div className="mb-6">

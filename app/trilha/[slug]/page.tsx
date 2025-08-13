@@ -7,7 +7,7 @@ import { ArrowRight, Play } from 'lucide-react';
 
 export default function TrilhaPage() {
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-4">Trajetória Vibra</h1>
         <p className="text-muted-foreground text-lg mb-6">

@@ -18,7 +18,7 @@ import { NotesPanel } from '@/components/lesson/NotesPanel';
 import { SharePanel } from '@/components/lesson/SharePanel';
 import { ProgressSidebar } from '@/components/lesson/ProgressSidebar';
 import { Home } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 // Dados estáticos da lição
@@ -26,14 +26,36 @@ const lesson = {
   titulo: 'Introdução à meditação para iniciantes',
   numero: 'Aula 2 de 10',
   duracao: '12:30',
-  prevHref: '/trilha/trajetoria-vibra/aula-1',
-  nextHref: '/trilha/trajetoria-vibra/aula-3'
+  prevHref: '/trilha/trajetoria-vibra',
+  nextHref: '/trilha/trajetoria-vibra'
 };
 
 export default function Aula3GovernancaCulturaPage() {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [isProgressOpen, setIsProgressOpen] = useState(true); // Estado inicial expandido
+  const [isProgressOpen, setIsProgressOpen] = useState(false); // Estado inicial fechado
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar se é mobile e ajustar estado inicial do sidebar
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      
+      // No mobile, sidebar sempre inicia fechado
+      if (mobile) {
+        setIsProgressOpen(false);
+      } else {
+        // No desktop, pode iniciar aberto
+        setIsProgressOpen(true);
+      }
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return (
     <SidebarProvider defaultOpen={false}>
@@ -193,7 +215,11 @@ export default function Aula3GovernancaCulturaPage() {
             {/* Coluna direita: sidebar de progresso (sempre visível) */}
             <div className={cn(
               "flex-shrink-0 transition-all duration-300 ease-in-out",
-              isProgressOpen ? "w-[360px]" : "w-[48px]"
+              isMobile 
+                ? "w-0" // No mobile não ocupa espaço quando fechado
+                : isProgressOpen 
+                  ? "w-[360px]" 
+                  : "w-[48px]"
             )}>
               <ProgressSidebar 
                 isOpen={isProgressOpen} 

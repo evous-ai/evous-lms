@@ -28,7 +28,7 @@ const treinamentos = [
     cor: "blue",
     acao: "Revisar",
     acaoVariant: "outline" as const,
-    acaoHref: "/trilha/trajetoria-vibra/aula-3-governanca-cultura"
+    acaoHref: "/trilha/trajetoria-vibra"
   },
   {
     id: "trajetoria-vibra",
@@ -54,7 +54,7 @@ const treinamentos = [
     cor: "purple",
     acao: "Começar",
     acaoVariant: "default" as const,
-    acaoHref: "/trilha/trajetoria-vibra/aula-3-governanca-cultura"
+    acaoHref: "/trilha/trajetoria-vibra"
   },
   {
     id: "lentes-digitais",
@@ -67,7 +67,7 @@ const treinamentos = [
     cor: "orange",
     acao: "Começar",
     acaoVariant: "default" as const,
-    acaoHref: "/trilha/trajetoria-vibra/aula-3-governanca-cultura"
+    acaoHref: "/trilha/trajetoria-vibra"
   },
   {
     id: "presbiopia",
@@ -80,7 +80,7 @@ const treinamentos = [
     cor: "pink",
     acao: "Continuar",
     acaoVariant: "default" as const,
-    acaoHref: "/trilha/trajetoria-vibra/aula-3-governanca-cultura"
+    acaoHref: "/trilha/trajetoria-vibra"
   },
   {
     id: "hipermetropia",
@@ -93,7 +93,7 @@ const treinamentos = [
     cor: "indigo",
     acao: "Começar",
     acaoVariant: "default" as const,
-    acaoHref: "/trilha/trajetoria-vibra/aula-3-governanca-cultura"
+    acaoHref: "/trilha/trajetoria-vibra"
   }
 ]
 
