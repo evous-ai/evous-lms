@@ -116,7 +116,7 @@ export function LMSSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip="Meus Treinamentos">
-                <Link href="/trilha">
+                <Link href="/meus-treinamentos">
                   <BookOpen />
                   <span>Meus Treinamentos</span>
                 </Link>
