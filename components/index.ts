@@ -16,4 +16,7 @@ export { ThemeProvider } from "./theme-provider"
 export { ModeToggle } from "./toggle-theme"
 export { EvousLoginForm } from "./evous-login-form"
 export { LoginForm } from "./login-form"
-export { AppSidebar as Sidebar } from "./app-sidebar" 
+export { AppSidebar as Sidebar } from "./app-sidebar"
+
+// Training components
+export { TrainingCard } from "./TrainingCard" 

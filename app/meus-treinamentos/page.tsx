@@ -5,19 +5,28 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
-import { Video, Clock, Search, X, Home } from "lucide-react"
+import { Search, X, Home } from "lucide-react"
 import { useState, useMemo } from "react"
-import Link from "next/link"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
+import { TrainingCard } from "@/components/TrainingCard"
 
 // Dados dos treinamentos (igual ao dashboard)
-const treinamentos = [
+const treinamentos: Array<{
+  id: string
+  titulo: string
+  categoria: string
+  status: "concluido" | "em-andamento" | "nao-iniciado"
+  progresso: number
+  videos: number
+  duracao: string
+  cor: "blue" | "green" | "purple" | "orange" | "pink" | "indigo"
+  acao: string
+  acaoVariant: "default" | "outline"
+  acaoHref?: string
+}> = [
   {
     id: "rebranding",
     titulo: "Rebranding",
@@ -109,33 +118,7 @@ export default function MeusTreinamentosPage() {
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas")
   const [statusFiltro, setStatusFiltro] = useState("Todos")
 
-  // Função para obter a cor do status
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "concluido":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-      case "em-andamento":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-      case "nao-iniciado":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-    }
-  }
 
-  // Função para obter o texto do status
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "concluido":
-        return "Curso Concluído"
-      case "em-andamento":
-        return "Em Andamento"
-      case "nao-iniciado":
-        return "Não Iniciado"
-      default:
-        return "Não Iniciado"
-    }
-  }
 
   // Filtrar treinamentos
   const treinamentosFiltrados = useMemo(() => {
@@ -240,54 +223,20 @@ export default function MeusTreinamentosPage() {
             {/* Lista de treinamentos */}
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {treinamentosFiltrados.map((treinamento) => (
-                <Card key={treinamento.id} className="bg-card border-border rounded-2xl shadow-none p-2">
-                  <div className="p-4 space-y-4">
-                    {/* Header do card */}
-                    <div className="flex items-start justify-between">
-                      <Badge variant="secondary" className="bg-background text-foreground border-border">
-                        {treinamento.categoria}
-                      </Badge>
-                      <Badge className={getStatusColor(treinamento.status)}>
-                        {getStatusText(treinamento.status)}
-                      </Badge>
-                    </div>
-
-                    {/* Título e descrição */}
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">{treinamento.titulo}</h3>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Video className="h-4 w-4" />
-                          <span>{treinamento.videos} vídeos</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          <span>{treinamento.duracao}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Barra de progresso */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Progresso</span>
-                        <span className="font-medium text-foreground">{treinamento.progresso}%</span>
-                      </div>
-                      <Progress value={treinamento.progresso} className="h-2" />
-                    </div>
-
-                    {/* Botão de ação */}
-                    <Button 
-                      variant={treinamento.acaoVariant} 
-                      className="w-full"
-                      asChild
-                    >
-                      <Link href={treinamento.acaoHref}>
-                        {treinamento.acao}
-                      </Link>
-                    </Button>
-                  </div>
-                </Card>
+                <TrainingCard
+                  key={treinamento.id}
+                  id={treinamento.id}
+                  titulo={treinamento.titulo}
+                  categoria={treinamento.categoria}
+                  status={treinamento.status}
+                  progresso={treinamento.progresso}
+                  videos={treinamento.videos}
+                  duracao={treinamento.duracao}
+                  cor={treinamento.cor}
+                  acao={treinamento.acao}
+                  acaoVariant={treinamento.acaoVariant}
+                  acaoHref="/trilha/trajetoria-vibra"
+                />
               ))}
             </div>
 
