@@ -17,6 +17,7 @@ export interface TrainingCardProps {
   acao: string
   acaoVariant: "default" | "outline"
   acaoHref?: string
+  href?: string // Novo prop para o link principal do card
 }
 
 export function TrainingCard({
@@ -29,7 +30,8 @@ export function TrainingCard({
   cor,
   acao,
   acaoVariant,
-  acaoHref
+  acaoHref,
+  href
 }: TrainingCardProps) {
   // Função para obter a cor do badge baseada no status
   const getStatusBadge = (status: string) => {
@@ -55,8 +57,8 @@ export function TrainingCard({
     return cores[cor as keyof typeof cores] || "bg-gray-100 dark:bg-gray-800/30"
   }
 
-  return (
-    <Card className="bg-card border-border rounded-2xl shadow-none p-2">
+      const cardContent = (
+      <Card className="bg-card border border-slate-100 rounded-2xl shadow-none p-2 transition-colors duration-200 hover:border-slate-200">
       <div>
         <div className={`${getCorFundo(cor)} rounded-xl px-5 py-6 mb-4`}>
           <Badge variant="secondary" className="bg-background text-foreground border-border">
@@ -87,14 +89,24 @@ export function TrainingCard({
           <Progress value={progresso} className="h-2 rounded-full" />
           <div className="mt-3 flex items-center justify-between">
             {getStatusBadge(status)}
-            {acaoHref ? (
-              <Button size="sm" variant={acaoVariant} asChild>
+            {acaoHref && !href ? (
+              <Button size="sm" variant={acaoVariant} asChild onClick={(e) => e.stopPropagation()}>
                 <Link href={acaoHref}>
                   {acao}
                 </Link>
               </Button>
             ) : (
-              <Button size="sm" variant={acaoVariant}>
+              <Button 
+                size="sm" 
+                variant={acaoVariant} 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (acaoHref && href) {
+                    // Se o card tem href principal, navega programaticamente
+                    window.open(acaoHref, '_blank');
+                  }
+                }}
+              >
                 {acao}
               </Button>
             )}
@@ -103,4 +115,16 @@ export function TrainingCard({
       </div>
     </Card>
   )
+
+  // Se houver href, envolve o card em um Link
+  if (href) {
+    return (
+      <Link href={href} className="block">
+        {cardContent}
+      </Link>
+    )
+  }
+
+  // Se não houver href, retorna apenas o card
+  return cardContent
 } 

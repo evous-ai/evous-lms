@@ -17,7 +17,8 @@ import { AttachmentsPanel } from '@/components/lesson/AttachmentsPanel';
 import { NotesPanel } from '@/components/lesson/NotesPanel';
 import { SharePanel } from '@/components/lesson/SharePanel';
 import { ProgressSidebar } from '@/components/lesson/ProgressSidebar';
-import { Home } from 'lucide-react';
+import { ContactSupportModal } from '@/components/modals/contact-support-modal';
+import { Home, MessageCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -35,6 +36,7 @@ export default function Aula3GovernancaCulturaPage() {
   const [hoverRating, setHoverRating] = useState(0);
   const [isProgressOpen, setIsProgressOpen] = useState(false); // Estado inicial fechado
   const [isMobile, setIsMobile] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   // Detectar se é mobile e ajustar estado inicial do sidebar
   useEffect(() => {
@@ -208,6 +210,36 @@ export default function Aula3GovernancaCulturaPage() {
                       </TabsContent>
                     </Tabs>
                   </section>
+
+                  {/* Footer - Bloco de Suporte */}
+                  <section className="mt-12 pt-8">
+                    <div className="text-center space-y-4 bg-slate-100 dark:bg-slate-900/30 rounded-xl p-8">
+                      <div className="flex justify-center">
+                        <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
+                          <MessageCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-semibold text-foreground">
+                          Precisa de ajuda?
+                        </h3>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                          Tem alguma dúvida sobre esta aula ou quer compartilhar feedback? 
+                          Nossa equipe está aqui para ajudar!
+                        </p>
+                      </div>
+                      
+                      <Button
+                        onClick={() => setIsContactModalOpen(true)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        size="lg"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Enviar Mensagem
+                      </Button>
+                    </div>
+                  </section>
                 </div>
               </div>
             </div>
@@ -229,6 +261,13 @@ export default function Aula3GovernancaCulturaPage() {
           </div>
         </main>
       </SidebarInset>
+      
+      {/* Modal de Contato com Suporte */}
+      <ContactSupportModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+        lessonTitle={lesson.titulo}
+      />
     </SidebarProvider>
   );
 } 

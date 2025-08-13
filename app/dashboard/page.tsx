@@ -285,6 +285,7 @@ export default function Page() {
                   acao={treinamento.acao}
                   acaoVariant={treinamento.acaoVariant}
                   acaoHref="/trilha/trajetoria-vibra"
+                  href="/trilha/trajetoria-vibra"
                 />
               ))}
             </div>
