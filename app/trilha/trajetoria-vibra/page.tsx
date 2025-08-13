@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-import { Play, Clock, BookOpen, Target, Star } from 'lucide-react';
+import { Play, Clock, BookOpen, Target, Star, Home } from 'lucide-react';
 import { useState } from 'react';
 import { CourseModulesList } from '@/components/course';
 
@@ -70,7 +70,9 @@ export default function TrajetoriaVibraPage() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/dashboard" className="text-muted-foreground hover:text-foreground">Treinamentos</BreadcrumbLink>
+                <BreadcrumbLink href="/dashboard" className="text-muted-foreground hover:text-foreground">
+                  <Home className="h-4 w-4" />
+                </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>

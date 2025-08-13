@@ -1,15 +1,16 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import {
   BadgeCheck,
   Bell,
   ChevronsUpDown,
   CreditCard,
   LogOut,
-  Sparkles,
-  User,
   Moon,
+  Sparkles,
   Sun,
+  User,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 
@@ -45,6 +46,13 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const { theme, setTheme } = useTheme()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    // Aqui você pode adicionar lógica adicional de logout se necessário
+    // Por exemplo, limpar tokens, localStorage, etc.
+    router.push("/")
+  }
 
   return (
     <SidebarMenu>
@@ -121,7 +129,7 @@ export function NavUser({
               <span className="ml-2">Alternar Tema</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

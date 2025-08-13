@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import {
   BadgeCheck,
   LogOut,
@@ -40,6 +41,13 @@ export function NavUserAluno({
 }) {
   const { isMobile } = useSidebar()
   const { theme, setTheme } = useTheme()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    // Aqui você pode adicionar lógica adicional de logout se necessário
+    // Por exemplo, limpar tokens, localStorage, etc.
+    router.push("/")
+  }
 
   return (
     <SidebarMenu>
@@ -92,7 +100,7 @@ export function NavUserAluno({
               <span className="ml-2">Alternar Tema</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

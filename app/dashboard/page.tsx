@@ -163,7 +163,7 @@ export default function Page() {
     <SidebarProvider>
       <LMSSidebar />
       <SidebarInset>
-        <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 bg-background">
+        <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 bg-slate-50 dark:bg-background">
           {/* Mensagem de Boas-vindas */}
           <div className="mb-6">
             <h1 className="text-2xl md:text-3xl font-bold mb-2 text-foreground">Olá, Edgar! 👋</h1>

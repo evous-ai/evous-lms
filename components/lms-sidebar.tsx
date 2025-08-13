@@ -115,10 +115,10 @@ export function LMSSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupLabel>Aprender</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Minhas Trilhas">
+              <SidebarMenuButton asChild tooltip="Meus Treinamentos">
                 <Link href="/trilha">
                   <BookOpen />
-                  <span>Minhas Trilhas</span>
+                  <span>Meus Treinamentos</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
