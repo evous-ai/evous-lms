@@ -87,7 +87,7 @@ export function NavUserAluno({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/perfil")}>
                 <BadgeCheck />
                 Meu Perfil
               </DropdownMenuItem>
