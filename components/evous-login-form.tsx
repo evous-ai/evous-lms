@@ -134,7 +134,7 @@ export function EvousLoginForm({
                   <div className="flex items-center">
                     <Label htmlFor="password">Senha</Label>
                     <a
-                      href="#"
+                      href="/dashboard"
                       className="ml-auto text-sm underline-offset-4 hover:underline"
                     >
                       Esqueceu sua senha?
@@ -161,7 +161,7 @@ export function EvousLoginForm({
               </div>
               <div className="text-center text-sm">
                 Não tem uma conta?{" "}
-                <a href="#" className="underline underline-offset-4">
+                <a href="/dashboard" className="underline underline-offset-4">
                   Criar conta
                 </a>
               </div>
@@ -171,8 +171,8 @@ export function EvousLoginForm({
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
         Ao clicar em continuar, você concorda com nossos{" "}
-        <a href="#">Termos de Serviço</a> e{" "}
-        <a href="#">Política de Privacidade</a>.
+        <a href="/dashboard">Termos de Serviço</a> e{" "}
+        <a href="/dashboard">Política de Privacidade</a>.
       </div>
     </div>
   )

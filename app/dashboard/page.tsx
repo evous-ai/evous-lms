@@ -28,7 +28,7 @@ const treinamentos = [
     cor: "blue",
     acao: "Revisar",
     acaoVariant: "outline" as const,
-    acaoHref: "#"
+    acaoHref: "/trilha/trajetoria-vibra/aula-3-governanca-cultura"
   },
   {
     id: "trajetoria-vibra",
@@ -54,7 +54,7 @@ const treinamentos = [
     cor: "purple",
     acao: "Começar",
     acaoVariant: "default" as const,
-    acaoHref: "#"
+    acaoHref: "/trilha/trajetoria-vibra/aula-3-governanca-cultura"
   },
   {
     id: "lentes-digitais",
@@ -67,7 +67,7 @@ const treinamentos = [
     cor: "orange",
     acao: "Começar",
     acaoVariant: "default" as const,
-    acaoHref: "#"
+    acaoHref: "/trilha/trajetoria-vibra/aula-3-governanca-cultura"
   },
   {
     id: "presbiopia",
@@ -80,7 +80,7 @@ const treinamentos = [
     cor: "pink",
     acao: "Continuar",
     acaoVariant: "default" as const,
-    acaoHref: "#"
+    acaoHref: "/trilha/trajetoria-vibra/aula-3-governanca-cultura"
   },
   {
     id: "hipermetropia",
@@ -93,7 +93,7 @@ const treinamentos = [
     cor: "indigo",
     acao: "Começar",
     acaoVariant: "default" as const,
-    acaoHref: "#"
+    acaoHref: "/trilha/trajetoria-vibra/aula-3-governanca-cultura"
   }
 ]
 
@@ -315,7 +315,7 @@ export default function Page() {
                       <Progress value={treinamento.progresso} className="h-2 rounded-full" />
                       <div className="mt-3 flex items-center justify-between">
                         {getStatusBadge(treinamento.status)}
-                        {treinamento.acaoHref === "/trilha/trajetoria-vibra" ? (
+                        {treinamento.acaoHref ? (
                           <Button size="sm" variant={treinamento.acaoVariant} asChild>
                             <Link href={treinamento.acaoHref}>
                               {treinamento.acao}

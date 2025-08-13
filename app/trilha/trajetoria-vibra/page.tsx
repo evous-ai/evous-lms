@@ -216,6 +216,19 @@ export default function TrajetoriaVibraPage() {
                         <span className="text-xs text-muted-foreground group-hover:text-muted-foreground transition-colors">
                           {aula.duracao}
                         </span>
+                        
+                        {/* Botão Assistir para aulas disponíveis */}
+                        {(aula.status === 'disponivel' || aula.status === 'concluida') && (
+                          <Button
+                            size="sm"
+                            className="bg-emerald-700 hover:bg-emerald-800 text-white"
+                            asChild
+                          >
+                            <Link href={`/trilha/trajetoria-vibra/${aula.id}`}>
+                              Assistir
+                            </Link>
+                          </Button>
+                        )}
                       </div>
                     ))}
                   </AccordionContent>
