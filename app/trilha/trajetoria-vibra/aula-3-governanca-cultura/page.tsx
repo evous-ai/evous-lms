@@ -18,9 +18,10 @@ import { NotesPanel } from '@/components/lesson/NotesPanel';
 import { SharePanel } from '@/components/lesson/SharePanel';
 import { ProgressSidebar } from '@/components/lesson/ProgressSidebar';
 import { ContactSupportModal } from '@/components/modals/contact-support-modal';
-import { Home, MessageCircle } from 'lucide-react';
+import { Home, MessageCircle, Bot, BookOpen } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Dados estáticos da lição
 const lesson = {
@@ -34,7 +35,8 @@ const lesson = {
 export default function Aula3GovernancaCulturaPage() {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [isProgressOpen, setIsProgressOpen] = useState(false); // Estado inicial fechado
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Estado inicial fechado
+  const [sidebarMode, setSidebarMode] = useState<'progresso' | 'tutor'>('progresso');
   const [isMobile, setIsMobile] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
@@ -46,10 +48,10 @@ export default function Aula3GovernancaCulturaPage() {
       
       // No mobile, sidebar sempre inicia fechado
       if (mobile) {
-        setIsProgressOpen(false);
+        setIsSidebarOpen(false);
       } else {
         // No desktop, pode iniciar aberto
-        setIsProgressOpen(true);
+        setIsSidebarOpen(true);
       }
     };
     
@@ -58,6 +60,12 @@ export default function Aula3GovernancaCulturaPage() {
     
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Função para abrir o sidebar em modo específico
+  const openSidebar = (mode: 'progresso' | 'tutor') => {
+    setSidebarMode(mode);
+    setIsSidebarOpen(true);
+  };
 
   return (
     <SidebarProvider defaultOpen={false}>
@@ -246,17 +254,89 @@ export default function Aula3GovernancaCulturaPage() {
 
             {/* Coluna direita: sidebar de progresso (sempre visível) */}
             <div className={cn(
-              "flex-shrink-0 transition-all duration-300 ease-in-out",
+              "flex-shrink-0 transition-all duration-300 ease-in-out relative",
               isMobile 
                 ? "w-0" // No mobile não ocupa espaço quando fechado
-                : isProgressOpen 
+                : isSidebarOpen 
                   ? "w-[360px]" 
                   : "w-[48px]"
             )}>
+              {/* Sidebar principal (ProgressSidebar) */}
               <ProgressSidebar 
-                isOpen={isProgressOpen} 
-                onToggle={() => setIsProgressOpen((v) => !v)}
+                isOpen={isSidebarOpen} 
+                onToggle={() => setIsSidebarOpen((v) => !v)}
+                mode={sidebarMode}
               />
+            </div>
+            
+            {/* Toggles - POSICIONAMENTO DINÂMICO (empurrados pelo sidebar) */}
+            <div 
+              className="fixed pointer-events-none z-50 transition-all duration-300 ease-in-out" 
+              style={{ 
+                right: isSidebarOpen ? '360px' : '48px', 
+                top: '0', 
+                height: '100vh' 
+              }}
+            >
+              {/* Toggle para Progresso */}
+              <div className="absolute -left-4 top-6 pointer-events-auto">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-8 w-8 rounded-full hover:scale-110 transition-transform"
+                        onClick={() => {
+                          if (isSidebarOpen && sidebarMode === 'progresso') {
+                            // Se já está aberto em modo progresso, comprime
+                            setIsSidebarOpen(false);
+                          } else {
+                            // Abre em modo progresso
+                            openSidebar('progresso');
+                          }
+                        }}
+                        aria-label="Mostrar ementa do treinamento"
+                      >
+                        <BookOpen className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left">
+                      <p>Ementa do Treinamento</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              
+              {/* Toggle para Tutor */}
+              <div className="absolute -left-4 top-20 pointer-events-auto">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-8 w-8 rounded-full hover:scale-110 transition-transform"
+                        onClick={() => {
+                          if (isSidebarOpen && sidebarMode === 'tutor') {
+                            // Se já está aberto em modo tutor, comprime
+                            setIsSidebarOpen(false);
+                          } else {
+                            // Abre em modo tutor
+                            openSidebar('tutor');
+                          }
+                        }}
+                        aria-label="Abrir Tutor IA"
+                      >
+                        <Bot className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left">
+                      <p>Abrir Tutor IA</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           </div>
         </main>

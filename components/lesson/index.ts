@@ -1,5 +1,6 @@
 export { ActionsSidebar } from './ActionsSidebar';
 export { ProgressSidebar } from './ProgressSidebar';
+export { TutorPanel } from './TutorPanel';
 export { CommentsPanel } from './CommentsPanel';
 export { QuizPanel } from './QuizPanel';
 export { AttachmentsPanel } from './AttachmentsPanel';

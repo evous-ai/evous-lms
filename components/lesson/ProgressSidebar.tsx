@@ -1,10 +1,11 @@
 "use client"
 
 import { Button } from '@/components/ui/button';
-import { PanelRightOpen, MoreVertical, X } from 'lucide-react';
+import { PanelRightOpen, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { CourseModulesList } from '@/components/course';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { TutorPanel } from './TutorPanel';
 
 // Mock do curso (usando a mesma estrutura da página principal)
 const cursoMock = {
@@ -44,9 +45,10 @@ const cursoMock = {
 interface ProgressSidebarProps {
   isOpen?: boolean;
   onToggle?: () => void;
+  mode?: 'progresso' | 'tutor';
 }
 
-export function ProgressSidebar({ isOpen = false, onToggle }: ProgressSidebarProps) {
+export function ProgressSidebar({ isOpen = false, onToggle, mode = 'progresso' }: ProgressSidebarProps) {
   const [expandedModules, setExpandedModules] = useState<string[]>(['m1', 'm2']); // Todos os módulos expandidos por padrão
   const [isMobile, setIsMobile] = useState(false);
 
@@ -111,24 +113,32 @@ export function ProgressSidebar({ isOpen = false, onToggle }: ProgressSidebarPro
         <aside className="fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-gray-950 z-50 shadow-2xl md:hidden">
           {/* Header mobile */}
           <div className="flex items-center justify-between p-4 border-b border-border/50">
-            <h3 className="text-lg font-bold text-foreground">Conteúdo do curso</h3>
+            <h3 className="text-lg font-bold text-foreground">
+              {mode === 'progresso' ? 'Conteúdo do curso' : 'Tutor do módulo'}
+            </h3>
             <Button
               size="icon"
               variant="ghost"
               onClick={onToggle}
-              aria-label="Fechar progresso"
+              aria-label="Fechar sidebar"
             >
               <X className="h-5 w-5" />
             </Button>
           </div>
           
           {/* Conteúdo mobile */}
-          <div className="p-4 overflow-y-auto h-full">
-            <CourseModulesList
-              modulos={cursoMock.modulos}
-              onModuleToggle={toggleModule}
-              expandedModules={expandedModules}
-            />
+          <div className="overflow-y-auto h-full">
+            {mode === 'progresso' ? (
+              <div className="p-4">
+                <CourseModulesList
+                  modulos={cursoMock.modulos}
+                  onModuleToggle={toggleModule}
+                  expandedModules={expandedModules}
+                />
+              </div>
+            ) : (
+              <TutorPanel />
+            )}
           </div>
         </aside>
       </>
@@ -137,30 +147,10 @@ export function ProgressSidebar({ isOpen = false, onToggle }: ProgressSidebarPro
 
   // Comportamento desktop (mantém o atual)
   if (!isOpen) {
-    // Modo comprimido: apenas borda esquerda e toggle
+    // Modo comprimido: apenas borda esquerda (sem toggle)
     return (
       <aside className="sticky top-0 h-screen border-l bg-transparent">
-        {/* Toggle para expandir o sidebar */}
-        <div className="absolute -left-4 top-6 z-10">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="h-8 w-8 rounded-full hover:scale-110 transition-transform"
-                  onClick={onToggle}
-                  aria-label="Mostrar progresso"
-                >
-                  <PanelRightOpen className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left">
-                <p>Mostrar progresso do curso</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        {/* Sem toggle aqui - os toggles são controlados pela página principal */}
       </aside>
     );
   }
@@ -173,7 +163,9 @@ export function ProgressSidebar({ isOpen = false, onToggle }: ProgressSidebarPro
       {/* Header com título e menu de opções */}
       <div className="px-6 pt-6 pb-4 border-b border-border/50 bg-white dark:bg-gray-950">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold text-foreground">Conteúdo do curso</h3>
+          <h3 className="text-xl font-bold text-foreground">
+            {mode === 'progresso' ? 'Conteúdo do curso' : 'Tutor IA'}
+          </h3>
           <div className="flex items-center gap-2">
             {onToggle && (
               <TooltipProvider>
@@ -184,46 +176,35 @@ export function ProgressSidebar({ isOpen = false, onToggle }: ProgressSidebarPro
                       variant="ghost"
                       className="h-6 w-6 rounded-full"
                       onClick={onToggle}
-                      aria-label="Ocultar progresso"
+                      aria-label="Ocultar sidebar"
                     >
                       <PanelRightOpen className="h-3 w-3 rotate-180" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="left">
-                    <p>Ocultar progresso do curso</p>
+                    <p>Ocultar sidebar</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             )}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-6 w-6 rounded-full"
-                    aria-label="Opções"
-                  >
-                    <MoreVertical className="h-3 w-3" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="left">
-                  <p>Opções</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
         </div>
       </div>
 
-      {/* Lista de módulos usando o componente reutilizável */}
-      <div className="px-6 py-4 bg-white dark:bg-gray-950">
-        <CourseModulesList
-          modulos={cursoMock.modulos}
-          onModuleToggle={toggleModule}
-          expandedModules={expandedModules}
-        />
-      </div>
+      {/* Conteúdo do sidebar baseado no modo */}
+      {mode === 'progresso' ? (
+        // Lista de módulos usando o componente reutilizável
+        <div className="px-6 py-4 bg-white dark:bg-gray-950">
+          <CourseModulesList
+            modulos={cursoMock.modulos}
+            onModuleToggle={toggleModule}
+            expandedModules={expandedModules}
+          />
+        </div>
+      ) : (
+        // Painel do Tutor
+        <TutorPanel />
+      )}
     </aside>
   );
 } 
