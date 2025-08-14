@@ -40,7 +40,7 @@ export function TrainingCard({
     } else if (status === "em-andamento") {
       return <Badge variant="default" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Em Andamento</Badge>
     } else {
-      return <Badge variant="outline" className="dark:border-gray-600 dark:text-gray-300">Não Iniciado</Badge>
+      return <Badge variant="outline" className="border-border/50 dark:border-border/30 text-muted-foreground dark:text-muted-foreground">Não Iniciado</Badge>
     }
   }
 
@@ -57,11 +57,11 @@ export function TrainingCard({
     return cores[cor as keyof typeof cores] || "bg-gray-100 dark:bg-gray-800/30"
   }
 
-      const cardContent = (
-      <Card className="bg-card border border-slate-100 rounded-2xl shadow-none p-2 transition-colors duration-200 hover:border-slate-200">
+  const cardContent = (
+    <Card className="bg-card border border-border/50 dark:border-border/20 rounded-2xl shadow-none p-2 transition-colors duration-200 hover:border-border dark:hover:border-border/60">
       <div>
         <div className={`${getCorFundo(cor)} rounded-xl px-5 py-6 mb-4`}>
-          <Badge variant="secondary" className="bg-background text-foreground border-border">
+          <Badge variant="secondary" className="bg-background/80 text-foreground border-border/50 dark:border-border/30">
             {categoria}
           </Badge>
           <h3 className="text-xl font-semibold mt-3 text-foreground">{titulo}</h3>

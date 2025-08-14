@@ -108,15 +108,15 @@ const treinamentos: Array<{
 ]
 
 // Categorias disponíveis
-const categorias = ["Todas", "Identidade Visual", "Estratégia Comercial", "Produtos & Combustíveis", "Tecnologia", "Tratamento", "Patologia"]
+const categorias = ["Todas as Categorias", "Identidade Visual", "Estratégia Comercial", "Produtos & Combustíveis", "Tecnologia", "Tratamento", "Patologia"]
 
 // Status disponíveis
-const status = ["Todos", "Em Andamento", "Concluído", "Não Iniciado"]
+const status = ["Todos os Status", "Em Andamento", "Concluído", "Não Iniciado"]
 
 export default function Page() {
   const [busca, setBusca] = useState("")
-  const [categoriaFiltro, setCategoriaFiltro] = useState("Todas")
-  const [statusFiltro, setStatusFiltro] = useState("Todos")
+  const [categoriaFiltro, setCategoriaFiltro] = useState("Todas as Categorias")
+  const [statusFiltro, setStatusFiltro] = useState("Todos os Status")
 
 
 
@@ -126,9 +126,9 @@ export default function Page() {
       const matchBusca = treinamento.titulo.toLowerCase().includes(busca.toLowerCase()) ||
                         treinamento.categoria.toLowerCase().includes(busca.toLowerCase())
       
-      const matchCategoria = categoriaFiltro === "Todas" || treinamento.categoria === categoriaFiltro
+      const matchCategoria = categoriaFiltro === "Todas as Categorias" || treinamento.categoria === categoriaFiltro
       
-      const matchStatus = statusFiltro === "Todos" || 
+      const matchStatus = statusFiltro === "Todos os Status" || 
         (statusFiltro === "Em Andamento" && treinamento.status === "em-andamento") ||
         (statusFiltro === "Concluído" && treinamento.status === "concluido") ||
         (statusFiltro === "Não Iniciado" && treinamento.status === "nao-iniciado")
@@ -140,12 +140,12 @@ export default function Page() {
   // Limpar filtros
   const limparFiltros = () => {
     setBusca("")
-    setCategoriaFiltro("Todas")
-    setStatusFiltro("Todos")
+    setCategoriaFiltro("Todas as Categorias")
+    setStatusFiltro("Todos os Status")
   }
 
   // Verificar se há filtros ativos
-  const temFiltrosAtivos = busca || categoriaFiltro !== "Todas" || statusFiltro !== "Todos"
+  const temFiltrosAtivos = busca || categoriaFiltro !== "Todas as Categorias" || statusFiltro !== "Todos os Status"
 
   return (
     <SidebarProvider>
