@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-import { Play, Clock, BookOpen, Target, Star, Home } from 'lucide-react';
+import { Play, Clock, Home } from 'lucide-react';
 import { useState } from 'react';
 import { CourseModulesList } from '@/components/course';
 

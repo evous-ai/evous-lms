@@ -5,11 +5,10 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
-import { Award, Target, Star, Search, Filter, X } from "lucide-react"
+import { Search, Filter, X } from "lucide-react"
 import { useState, useMemo } from "react"
 import { TrainingCard } from "@/components/TrainingCard"
 
