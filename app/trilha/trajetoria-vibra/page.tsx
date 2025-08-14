@@ -97,21 +97,7 @@ export default function TrajetoriaVibraPage() {
                 <h1 className="text-4xl font-bold text-foreground leading-tight">{curso.titulo}</h1>
                 <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed">{curso.descricao}</p>
                 
-                {/* Estatísticas rápidas */}
-                <div className="flex flex-wrap gap-6 pt-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <BookOpen className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                    <span>{curso.totalVideos} vídeos</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Target className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <span>{curso.percent}% concluído</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Star className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                    <span>{curso.concluidos} aulas finalizadas</span>
-                  </div>
-                </div>
+
               </div>
               
               <div className="flex flex-col gap-3 min-w-fit justify-center">

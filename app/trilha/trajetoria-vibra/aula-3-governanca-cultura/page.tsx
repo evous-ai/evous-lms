@@ -8,17 +8,11 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Star } from 'lucide-react';
 
-import { CommentsPanel } from '@/components/lesson/CommentsPanel';
-import { QuizPanel } from '@/components/lesson/QuizPanel';
-import { AttachmentsPanel } from '@/components/lesson/AttachmentsPanel';
-import { NotesPanel } from '@/components/lesson/NotesPanel';
-import { SharePanel } from '@/components/lesson/SharePanel';
 import { ProgressSidebar } from '@/components/lesson/ProgressSidebar';
 import { ContactSupportModal } from '@/components/modals/contact-support-modal';
-import { Home, MessageCircle, Bot, BookOpen } from 'lucide-react';
+import { Home, MessageCircle, BookOpen } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -36,7 +30,7 @@ export default function Aula3GovernancaCulturaPage() {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Estado inicial fechado
-  const [sidebarMode, setSidebarMode] = useState<'progresso' | 'tutor'>('progresso');
+  const [sidebarMode, setSidebarMode] = useState<'progresso'>('progresso');
   const [isMobile, setIsMobile] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
@@ -61,11 +55,7 @@ export default function Aula3GovernancaCulturaPage() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Função para abrir o sidebar em modo específico
-  const openSidebar = (mode: 'progresso' | 'tutor') => {
-    setSidebarMode(mode);
-    setIsSidebarOpen(true);
-  };
+
 
   return (
     <SidebarProvider defaultOpen={false}>
@@ -176,48 +166,7 @@ export default function Aula3GovernancaCulturaPage() {
                     </Button>
                   </section>
 
-                  {/* Tabs - agora dentro da coluna de conteúdo */}
-                  <section className="mt-8">
-                    <Tabs defaultValue="comments" className="w-full">
-                      <TabsList className="grid w-full grid-cols-5">
-                        <TabsTrigger value="comments">Comentários</TabsTrigger>
-                        <TabsTrigger value="quiz">Quiz</TabsTrigger>
-                        <TabsTrigger value="attachments">Anexos</TabsTrigger>
-                        <TabsTrigger value="notes">Notas</TabsTrigger>
-                        <TabsTrigger value="share">Compartilhar</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="comments" className="mt-4">
-                        <div className="p-4 bg-card border border-border rounded-lg">
-                          <CommentsPanel />
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="quiz" className="mt-4">
-                        <div className="p-4 bg-card border border-border rounded-lg">
-                          <QuizPanel />
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="attachments" className="mt-4">
-                        <div className="p-4 bg-card border border-border rounded-lg">
-                          <AttachmentsPanel />
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="notes" className="mt-4">
-                        <div className="p-4 bg-card border border-border rounded-lg">
-                          <NotesPanel />
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="share" className="mt-4">
-                        <div className="p-4 bg-card border border-border rounded-lg">
-                          <SharePanel />
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  </section>
+
 
                   {/* Footer - Bloco de Suporte */}
                   <section className="mt-12 pt-8">
@@ -293,7 +242,8 @@ export default function Aula3GovernancaCulturaPage() {
                             setIsSidebarOpen(false);
                           } else {
                             // Abre em modo progresso
-                            openSidebar('progresso');
+                            setSidebarMode('progresso');
+                            setIsSidebarOpen(true);
                           }
                         }}
                         aria-label="Mostrar ementa do treinamento"
@@ -308,35 +258,7 @@ export default function Aula3GovernancaCulturaPage() {
                 </TooltipProvider>
               </div>
               
-              {/* Toggle para Tutor */}
-              <div className="absolute -left-4 top-20 pointer-events-auto">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="h-8 w-8 rounded-full hover:scale-110 transition-transform"
-                        onClick={() => {
-                          if (isSidebarOpen && sidebarMode === 'tutor') {
-                            // Se já está aberto em modo tutor, comprime
-                            setIsSidebarOpen(false);
-                          } else {
-                            // Abre em modo tutor
-                            openSidebar('tutor');
-                          }
-                        }}
-                        aria-label="Abrir Tutor IA"
-                      >
-                        <Bot className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left">
-                      <p>Abrir Tutor IA</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+
             </div>
           </div>
         </main>

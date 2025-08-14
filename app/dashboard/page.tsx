@@ -160,47 +160,7 @@ export default function Page() {
             </p>
           </div>
 
-          {/* 1. Seção: Sua Jornada */}
-          <section className="space-y-4">
-            <h2 className="text-xl md:text-2xl font-bold text-foreground">Sua Jornada</h2>
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-              <Card className="p-4 bg-card border-border shadow-none">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-                    <Star className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Pontuação</p>
-                    <p className="text-xl font-bold text-foreground">1.250</p>
-                  </div>
-                </div>
-              </Card>
 
-              <Card className="p-4 bg-card border-border shadow-none">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                    <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Progresso</p>
-                    <p className="text-xl font-bold text-foreground">3/5</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-4 bg-card border-border shadow-none">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                    <Award className="h-5 w-5 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Nível</p>
-                    <p className="text-xl font-bold text-foreground">Explorador</p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </section>
 
           {/* 2. Seção: Treinamentos Disponíveis */}
           <section className="space-y-4">
