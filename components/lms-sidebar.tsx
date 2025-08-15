@@ -13,6 +13,8 @@ import {
 } from "lucide-react"
 
 import { NavUserAluno } from "@/components/nav-user-aluno"
+import { AreaIndisponivelModal } from "@/components/modals/area-indisponivel-modal"
+import { useLinkInterceptor } from "@/hooks/use-link-interceptor"
 import {
   Sidebar,
   SidebarContent,
@@ -82,87 +84,106 @@ function DynamicLogo() {
         height={logo.height}
         priority
         className={state === "collapsed" ? "transition-all duration-200 object-contain flex-shrink-0 mx-auto" : "transition-all duration-200 object-contain flex-shrink-0"}
-
       />
     </div>
   )
 }
 
 export function LMSSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="flex-shrink-0">
-        <DynamicLogo />
-      </SidebarHeader>
-      
-      <SidebarContent>
-        {/* 1. INÍCIO */}
-        <SidebarGroup>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Início">
-                <Link href="/dashboard">
-                  <House />
-                  <span>Início</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
+  const { modalConfig, closeModal, interceptLink } = useLinkInterceptor()
 
-        {/* 2. APRENDER */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Aprender</SidebarGroupLabel>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Meus Treinamentos">
-                <Link href="/meus-treinamentos">
-                  <BookOpen />
-                  <span>Meus Treinamentos</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Biblioteca">
-                <Link href="/biblioteca">
+  const handleLinkClick = (href: string, e: React.MouseEvent) => {
+    if (!interceptLink(href, e)) {
+      // Se o link foi interceptado, não fazer nada (o modal será mostrado)
+      return
+    }
+    // Se não foi interceptado, permitir navegação normal
+  }
+
+  return (
+    <>
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader className="flex-shrink-0">
+          <DynamicLogo />
+        </SidebarHeader>
+        
+        <SidebarContent>
+          {/* 1. INÍCIO */}
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Início">
+                  <Link href="/dashboard">
+                    <House />
+                    <span>Início</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+
+          {/* 2. APRENDER */}
+          <SidebarGroup>
+            <SidebarGroupLabel>Aprender</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Meus Treinamentos">
+                  <Link href="/meus-treinamentos">
+                    <BookOpen />
+                    <span>Meus Treinamentos</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  tooltip="Biblioteca"
+                  onClick={(e) => handleLinkClick("/biblioteca", e)}
+                >
                   <Library />
                   <span>Biblioteca</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
 
-        {/* 3. MEU PROGRESSO */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Meu Progresso</SidebarGroupLabel>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Meu Desempenho">
-                <Link href="/dashboard">
-                  <BarChart3 />
-                  <span>Meu Desempenho</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Missões Ativas">
-                <Link href="/missoes">
+          {/* 3. MEU PROGRESSO */}
+          <SidebarGroup>
+            <SidebarGroupLabel>Meu Progresso</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Meu Desempenho">
+                  <Link href="/dashboard">
+                    <BarChart3 />
+                    <span>Meu Desempenho</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  tooltip="Missões Ativas"
+                  onClick={(e) => handleLinkClick("/missoes", e)}
+                >
                   <Target />
                   <span>Missões Ativas</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-      
-      {/* Footer com usuário */}
-      <SidebarFooter>
-        <NavUserAluno user={userData.user} />
-      </SidebarFooter>
-      
-      <SidebarRail />
-    </Sidebar>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+        
+        {/* Footer com usuário */}
+        <SidebarFooter>
+          <NavUserAluno user={userData.user} />
+        </SidebarFooter>
+        
+        <SidebarRail />
+      </Sidebar>
+
+      {/* Modal de área indisponível */}
+      <AreaIndisponivelModal
+        isOpen={modalConfig.isOpen}
+        onClose={closeModal}
+      />
+    </>
   )
 } 

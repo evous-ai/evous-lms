@@ -19,4 +19,7 @@ export { LoginForm } from "./login-form"
 export { AppSidebar as Sidebar } from "./app-sidebar"
 
 // Training components
-export { TrainingCard } from "./TrainingCard" 
+export { TrainingCard } from "./TrainingCard"
+
+// Modals
+export { AreaIndisponivelModal } from "./modals/area-indisponivel-modal" 
