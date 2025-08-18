@@ -29,13 +29,16 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
 
-// Dados do usuário para o footer
-const userData = {
+// Props do componente
+interface LMSSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: {
-    name: "edgar.fonseca",
-    email: "edgar.fonseca@evous.ai",
-    initials: "EF",
-  },
+    id: string
+    email?: string
+  }
+  profile: {
+    full_name?: string | null
+    country?: string | null
+  } | null
 }
 
 function DynamicLogo() {
@@ -84,13 +87,39 @@ function DynamicLogo() {
         height={logo.height}
         priority
         className={state === "collapsed" ? "transition-all duration-200 object-contain flex-shrink-0 mx-auto" : "transition-all duration-200 object-contain flex-shrink-0"}
+        style={{ width: "auto", height: "auto" }}
       />
     </div>
   )
 }
 
-export function LMSSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function LMSSidebar({ user, profile, ...props }: LMSSidebarProps) {
   const { modalConfig, closeModal, interceptLink } = useLinkInterceptor()
+
+  // Gerar iniciais do nome ou email
+  const getInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name
+        .split(' ')
+        .map(name => name.charAt(0))
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    }
+    if (user.email) {
+      return user.email.split('@')[0].slice(0, 2).toUpperCase()
+    }
+    return 'U'
+  }
+
+  // Dados do usuário para o footer
+  const userData = {
+    user: {
+      name: profile?.full_name || user.email?.split('@')[0] || 'Usuário',
+      email: user.email || 'sem-email@exemplo.com',
+      initials: getInitials(),
+    },
+  }
 
   const handleLinkClick = (href: string, e: React.MouseEvent) => {
     if (!interceptLink(href, e)) {

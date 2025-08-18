@@ -4,10 +4,21 @@ import { LMSSidebar } from "@/components"
 import { SidebarProvider } from "@/components/ui/sidebar"
 
 export function LMSSidebarDemo() {
+  // Dados mock para demonstração
+  const mockUser = {
+    id: "demo-user-id",
+    email: "demo@evous.ai"
+  }
+
+  const mockProfile = {
+    full_name: "Usuário Demo",
+    country: "Brasil"
+  }
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen">
-        <LMSSidebar />
+        <LMSSidebar user={mockUser} profile={mockProfile} />
         <main className="flex-1 p-8">
           <h1 className="text-2xl font-bold mb-4">Demonstração do LMS Sidebar</h1>
           <p className="text-gray-600">

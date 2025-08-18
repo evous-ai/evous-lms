@@ -1,152 +1,134 @@
-"use client"
+'use client'
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2 } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Mail, Lock } from "lucide-react"
+import Link from "next/link"
+import { createClient } from "@/utils/supabase/client"
 
-export function EvousLoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function EvousLoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [errorMsg, setErrorMsg] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError("")
-
-    // Validação básica
-    if (!email || !password) {
-      setError("Por favor, preencha todos os campos")
-      return
-    }
-
     setIsLoading(true)
+    setErrorMsg("")
 
-    // Simular atraso de 500ms
-    setTimeout(() => {
-      setIsLoading(false)
-      
-      // Lógica de redirecionamento baseada no email
-      if (email === "gestor@evous.com") {
-        router.push("/dashboard-gestor")
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) {
+        setErrorMsg('Email ou senha inválidos.')
       } else {
-        router.push("/dashboard")
+        router.push('/dashboard')
+        router.refresh()
       }
-    }, 500)
+    } catch {
+      setErrorMsg('Erro interno do servidor.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
-    <div className={cn("flex flex-col gap-6 w-full", className)} {...props}>
-      {/* Logo Evous – 1 visível por vez via Tailwind (sem JS) */}
-      <div className="flex justify-center mb-4">
-        {/* Light Mode: logo claro */}
-        <Image
-          src="/evous_logo_light.svg"
-          alt="Evous"
-          width={160}
-          height={42}
-          className="h-10 w-auto block dark:hidden"
-          priority
-        />
-        {/* Dark Mode: logo escuro */}
-        <Image
-          src="/evous_logo.svg"
-          alt="Evous"
-          width={160}
-          height={42}
-          className="h-10 w-auto hidden dark:block"
-          priority
-        />
-      </div>
+    <div className="flex flex-col justify-center items-center min-h-screen bg-slate-50 dark:bg-background p-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img src="/evous_logo_light.svg" alt="Evous" className="h-12 dark:hidden" />
+            <img src="/evous_logo.svg" alt="Evous" className="h-12 hidden dark:block" />
+          </div>
+        </div>
 
-      <Card className="w-full">
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Bem-vindo de volta</CardTitle>
-          <CardDescription>
-            Acesse com sua conta
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            <div className="grid gap-6">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-              
-              <div className="grid gap-6">
-                <div className="grid gap-3">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
+        {/* Formulário */}
+        <Card className="w-full">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center">Bem-vindo de volta!</CardTitle>
+            <CardDescription className="text-center">
+              Entre com suas credenciais para acessar sua conta
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    autoComplete="email" 
+                    id="email" 
+                    type="email" 
+                    name="email" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    placeholder="seu@email.com" 
+                    disabled={isLoading}
+                    required 
+                    className="pl-10"
                   />
                 </div>
-                <div className="grid gap-3">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Senha</Label>
-                    <a
-                      href="/dashboard"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                    >
-                      Esqueceu sua senha?
-                    </a>
-                  </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
+                    autoComplete="current-password" 
                     id="password" 
                     type="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    name="password" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="Sua senha" 
+                    disabled={isLoading}
                     required 
+                    className="pl-10"
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Entrando...
-                    </>
-                  ) : (
-                    "Login"
-                  )}
-                </Button>
               </div>
-              <div className="text-center text-sm">
-                Não tem uma conta?{" "}
-                <a href="/signup" className="underline underline-offset-4">
-                  Criar conta
-                </a>
-              </div>
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Entrando...</span>
+                  </div>
+                ) : (
+                  'Entrar'
+                )}
+              </Button>
+              {errorMsg && (
+                <p className="text-center text-sm text-destructive">{errorMsg}</p>
+              )}
+            </form>
+            
+            <Separator />
+            
+            <div className="text-center text-sm text-muted-foreground">
+              Não tem uma conta?{" "}
+              <Link href="/signup" className="text-primary hover:underline font-medium">
+                Criar conta
+              </Link>
             </div>
-          </form>
-        </CardContent>
-      </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        Ao clicar em continuar, você concorda com nossos{" "}
-        <a href="/dashboard">Termos de Serviço</a> e{" "}
-        <a href="/dashboard">Política de Privacidade</a>.
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

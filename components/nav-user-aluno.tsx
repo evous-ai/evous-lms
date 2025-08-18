@@ -8,6 +8,7 @@ import {
   Sun,
 } from "lucide-react"
 import { useTheme } from "next-themes"
+import { createClient } from "@/utils/supabase/client"
 
 import {
   Avatar,
@@ -43,10 +44,31 @@ export function NavUserAluno({
   const { theme, setTheme } = useTheme()
   const router = useRouter()
 
-  const handleLogout = () => {
-    // Aqui você pode adicionar lógica adicional de logout se necessário
-    // Por exemplo, limpar tokens, localStorage, etc.
-    router.push("/")
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient()
+      
+      // Fazer logout do Supabase
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) {
+        console.error('Erro ao fazer logout:', error)
+        // Mesmo com erro, redirecionar para a página inicial
+      }
+      
+      // Limpar dados locais se necessário
+      localStorage.removeItem('supabase.auth.token')
+      
+      // Redirecionar para a página inicial
+      router.push("/")
+      router.refresh()
+      
+    } catch (error) {
+      console.error('Erro inesperado no logout:', error)
+      // Em caso de erro, tentar redirecionar mesmo assim
+      router.push("/")
+      router.refresh()
+    }
   }
 
   return (
@@ -102,7 +124,7 @@ export function NavUserAluno({
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
-              Log out
+              Sair
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
