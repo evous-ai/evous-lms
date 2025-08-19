@@ -1,0 +1,17 @@
+{
+  "name": "evous-vision-lms",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd evous-app && npm run dev",
+    "build": "cd evous-app && npm run build",
+    "start": "cd evous-app && npm run start",
+    "lint": "cd evous-app && npm run lint"
+  },
+  "workspaces": [
+    "evous-app"
+  ],
+  "dependencies": {
+    "next": "15.3.5"
+  }
+}
