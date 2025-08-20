@@ -524,7 +524,7 @@ export default function VideoPreviewPage() {
         narracao: "Você sabia que a inteligência artificial pode automatizar até 40% do seu tempo de trabalho? Isso significa mais foco no que realmente importa."
       },
       assets: [
-        { id: 'logo', type: 'logo', url: '/evous_logo.svg', name: 'Logo' },
+        { id: 'logo', type: 'logo', url: '/logo_lubrax_darkmode.png', name: 'Logo' },
         { id: 'frameImage', type: 'image', url: '/sample_asset_evous.png', name: 'Asset decorativo' }
       ]
     },
@@ -554,9 +554,9 @@ export default function VideoPreviewPage() {
       id: "scene-4",
       layoutId: "fechamento",
       texts: {
-        narracao: "Chegou a hora de transformar a sua rotina com inteligência artificial. Evolua com a Evous."
+        narracao: "Chegou a hora de transformar a sua rotina com inteligência artificial. Evolua com a Lubrax."
       },
-      assets: [{ id: 'logo', type: 'logo', url: '/evous_logo.svg', name: 'Logo' }]
+              assets: [{ id: 'logo', type: 'logo', url: '/logo_lubrax_darkmode.png', name: 'Logo' }]
     }
   ];
 

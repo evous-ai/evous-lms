@@ -47,11 +47,25 @@ export function EvousLoginForm() {
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-slate-50 dark:bg-background p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8 hidden">
+        {/* Logo Lubrax */}
+        <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Image src="/evous_logo_light.svg" alt="Evous" width={48} height={48} className="h-12 dark:hidden" />
-            <Image src="/evous_logo.svg" alt="Evous" width={48} height={48} className="h-12 hidden dark:block" />
+            <Image
+              src="/logo_lubrax_lightmode.png"
+              alt="Lubrax"
+              width={160}
+              height={42}
+              className="h-10 w-auto block dark:hidden"
+              priority
+            />
+            <Image
+              src="/logo_lubrax_darkmode.png"
+              alt="Lubrax"
+              width={160}
+              height={42}
+              className="h-10 w-auto hidden dark:block"
+              priority
+            />
           </div>
         </div>
 
@@ -73,13 +87,11 @@ export function EvousLoginForm() {
                     autoComplete="email" 
                     id="email" 
                     type="email" 
-                    name="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
                     placeholder="seu@email.com" 
-                    disabled={isLoading}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10" 
                     required 
-                    className="pl-10"
                   />
                 </div>
               </div>
@@ -91,38 +103,29 @@ export function EvousLoginForm() {
                     autoComplete="current-password" 
                     id="password" 
                     type="password" 
-                    name="password" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    placeholder="Sua senha" 
-                    disabled={isLoading}
+                    placeholder="••••••••" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10" 
                     required 
-                    className="pl-10"
                   />
                 </div>
               </div>
+              {errorMsg && (
+                <div className="text-red-500 text-sm text-center">
+                  {errorMsg}
+                </div>
+              )}
               <Button 
                 type="submit" 
+                className="w-full" 
                 disabled={isLoading}
-                className="w-full"
               >
-                {isLoading ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Entrando...</span>
-                  </div>
-                ) : (
-                  'Entrar'
-                )}
+                {isLoading ? "Entrando..." : "Entrar"}
               </Button>
-              {errorMsg && (
-                <p className="text-center text-sm text-destructive">{errorMsg}</p>
-              )}
             </form>
-            
             <Separator />
-            
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-sm">
               Não tem uma conta?{" "}
               <Link href="/signup" className="text-primary hover:underline font-medium">
                 Criar conta

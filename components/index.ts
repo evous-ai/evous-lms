@@ -15,6 +15,7 @@ export { TeamSwitcher } from "./team-switcher"
 export { ThemeProvider } from "./theme-provider"
 export { ModeToggle } from "./toggle-theme"
 export { EvousLoginForm } from "./evous-login-form"
+export { PoweredByEvous } from "./powered-by-evous"
 export { LoginForm } from "./login-form"
 export { AppSidebar as Sidebar } from "./app-sidebar"
 
