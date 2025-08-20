@@ -8,9 +8,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
-import { Search, Filter, X } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Search, Filter, X, Play } from "lucide-react"
 import { useState, useMemo } from "react"
 import { TrainingCard } from "@/components/TrainingCard"
+import Link from "next/link"
+import { PoweredByEvous } from "@/components/powered-by-evous"
 
 // Dados dos treinamentos
 const treinamentos: Array<{
@@ -117,7 +120,10 @@ export default function Page() {
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas as Categorias")
   const [statusFiltro, setStatusFiltro] = useState("Todos os Status")
 
-
+  // Dados do usuário (simulado - você pode integrar com seu sistema de autenticação)
+  const userData = {
+    name: "Maria Eduarda"
+  }
 
   // Filtros aplicados
   const treinamentosFiltrados = useMemo(() => {
@@ -151,14 +157,36 @@ export default function Page() {
       <LMSSidebar />
       <SidebarInset>
         <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 bg-slate-50 dark:bg-background">
-          {/* Mensagem de Boas-vindas */}
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-foreground">Olá, Edgar! 👋</h1>
-            <p className="text-muted-foreground text-base md:text-lg">
-              Pronto para continuar sua jornada? Aqui estão seus treinamentos e seu progresso.
-            </p>
-          </div>
-
+          {/* WelcomeHero - Banner pessoal */}
+          <Card className="bg-[#144722] text-white border-0 shadow-none">
+            <CardContent className="p-8">
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-12">
+                <div className="space-y-3 flex-1">
+                  <h1 className="text-3xl font-bold">
+                    Olá, {userData.name}! 👋
+                  </h1>
+                  <p className="text-green-100 text-lg max-w-xl">
+                    Bem-vindo à sua área de aprendizagem. Continue de onde parou e mantenha o ritmo!
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button size="lg" className="bg-white text-[#144722] hover:bg-green-50" asChild>
+                      <Link href="/trilha/trajetoria-vibra">
+                        <Play className="h-4 w-4 mr-2" />
+                        Continuar treinamento
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  <img 
+                    src="/logo_lubrax.png" 
+                    alt="Logo Lubrax" 
+                    className="h-10 w-auto object-contain"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
 
           {/* 2. Seção: Treinamentos Disponíveis */}
@@ -263,6 +291,11 @@ export default function Page() {
               </div>
             )}
           </section>
+
+          {/* Footer com Powered by Evous */}
+          <div className="mt-auto pt-8 pb-4 text-center">
+            <PoweredByEvous size="sm" />
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

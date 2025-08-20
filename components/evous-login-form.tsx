@@ -54,12 +54,12 @@ export function EvousLoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6 w-full", className)} {...props}>
-      {/* Logo Evous – 1 visível por vez via Tailwind (sem JS) */}
+      {/* Logo Lubrax – 1 visível por vez via Tailwind (sem JS) */}
       <div className="flex justify-center mb-4">
         {/* Light Mode: logo claro */}
         <Image
-          src="/evous_logo_light.svg"
-          alt="Evous"
+          src="/logo_lubrax_lightmode.png"
+          alt="Lubrax"
           width={160}
           height={42}
           className="h-10 w-auto block dark:hidden"
@@ -67,8 +67,8 @@ export function EvousLoginForm({
         />
         {/* Dark Mode: logo escuro */}
         <Image
-          src="/evous_logo.svg"
-          alt="Evous"
+          src="/logo_lubrax_darkmode.png"
+          alt="Lubrax"
           width={160}
           height={42}
           className="h-10 w-auto hidden dark:block"

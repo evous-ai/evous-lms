@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Play, Clock, Home } from 'lucide-react';
 import { useState } from 'react';
 import { CourseModulesList } from '@/components/course';
+import { PoweredByEvous } from '@/components/powered-by-evous';
 
 // Dados estáticos da trilha
 const curso = {
@@ -151,6 +152,11 @@ export default function TrajetoriaVibraPage() {
                 }
               }}
             />
+          </div>
+
+          {/* Footer com Powered by Evous */}
+          <div className="mt-auto pt-8 pb-4 text-center">
+            <PoweredByEvous size="sm" />
           </div>
         </div>
       </SidebarInset>

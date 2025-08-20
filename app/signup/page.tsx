@@ -5,16 +5,17 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { User, Mail, Lock, Globe } from "lucide-react"
 import Link from "next/link"
+import { PoweredByEvous } from "@/components/powered-by-evous"
 
 export default function SignupPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <img src="/evous_logo_light.svg" alt="Evous" className="h-12 dark:hidden" />
-            <img src="/evous_logo.svg" alt="Evous" className="h-12 hidden dark:block" />
+            <img src="/logo_lubrax_lightmode.png" alt="Lubrax" className="h-8 dark:hidden" />
+            <img src="/logo_lubrax_darkmode.png" alt="Lubrax" className="h-8 hidden dark:block" />
           </div>
         </div>
 
@@ -130,6 +131,11 @@ export default function SignupPage() {
             Política de Privacidade
           </Link>
         </p>
+
+        {/* Powered by Evous */}
+        <div className="mt-8 text-center">
+          <PoweredByEvous size="md" />
+        </div>
       </div>
     </div>
   )

@@ -16,6 +16,7 @@ import { Home, MessageCircle, BookOpen } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { PoweredByEvous } from '@/components/powered-by-evous';
 
 // Dados estáticos da lição
 const lesson = {
@@ -197,6 +198,11 @@ export default function Aula3GovernancaCulturaPage() {
                       </Button>
                     </div>
                   </section>
+
+                  {/* Powered by Evous (apenas sob o conteúdo da aula) */}
+                  <div className="mt-8 text-center">
+                    <PoweredByEvous size="sm" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -261,6 +267,8 @@ export default function Aula3GovernancaCulturaPage() {
 
             </div>
           </div>
+
+          
         </main>
       </SidebarInset>
       

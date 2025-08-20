@@ -22,10 +22,10 @@ import { useTheme } from "next-themes"
 
 // Dados mockados do usuário (em produção viriam da API)
 const userData = {
-  nome: "Edgar Fonseca",
-  email: "edgar@evous.ai",
+  nome: "Maria Eduarda",
+  email: "maria.eduarda@evous.ai",
   telefone: "(11) 99999-9999",
-  dataNascimento: "1985-06-15",
+  dataNascimento: "1990-03-22",
   area: "Evous Digital",
   pais: "Brasil",
   notificacoesEmail: true,
