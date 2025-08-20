@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, HeadBucketCommand } from '@aws-sdk/client-s3'
 
 // Configuração do cliente S3
 const s3Client = new S3Client({
@@ -69,6 +69,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Verificar se o bucket existe e está acessível
+    try {
+      console.log('Verificando acesso ao bucket...')
+      await s3Client.send(new HeadBucketCommand({ Bucket: BUCKET_NAME }))
+      console.log('Bucket acessível:', BUCKET_NAME)
+    } catch (bucketError) {
+      console.error('Erro ao acessar bucket:', bucketError)
+      return NextResponse.json(
+        { error: 'Bucket de armazenamento não acessível. Verifique as configurações.' },
+        { status: 500 }
+      )
+    }
+
     // Converter arquivo para buffer
     console.log('Convertendo arquivo para buffer...')
     const bytes = await file.arrayBuffer()
@@ -85,7 +98,6 @@ export async function POST(request: NextRequest) {
       Key: key,
       Body: buffer,
       ContentType: file.type,
-      ACL: 'public-read', // Tornar o arquivo público
       Metadata: {
         'original-name': file.name,
         'uploaded-by': userId,
@@ -99,6 +111,7 @@ export async function POST(request: NextRequest) {
     console.log('Upload para S3 concluído com sucesso')
 
     // Construir URL pública
+    // Se o bucket não permite ACLs, a URL será baseada na política de bucket
     const publicUrl = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION || 'us-east-2'}.amazonaws.com/${key}`
 
     return NextResponse.json({

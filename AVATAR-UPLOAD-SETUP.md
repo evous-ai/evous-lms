@@ -72,7 +72,7 @@ Certifique-se de que sua conta AWS tenha as seguintes permissões:
 
 ### 3. Política de Bucket S3
 
-Configure o bucket para permitir acesso público aos avatares:
+Configure o bucket para permitir acesso público aos avatares. **Importante**: Se seu bucket não permite ACLs, use apenas a política de bucket:
 
 ```json
 {
@@ -84,6 +84,32 @@ Configure o bucket para permitir acesso público aos avatares:
       "Principal": "*",
       "Action": "s3:GetObject",
       "Resource": "arn:aws:s3:::evous/lsm/avatar/*"
+    }
+  ]
+}
+```
+
+#### Configuração de Bucket Sem ACLs
+
+Se você receber o erro `AccessControlListNotSupported`, significa que seu bucket está configurado para não permitir ACLs. Neste caso:
+
+1. **Remova qualquer configuração de ACL** do código (já feito)
+2. **Use apenas a política de bucket** acima para tornar os objetos públicos
+3. **Configure o bucket para bloquear ACLs** (recomendado para segurança):
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyACLs",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": [
+        "s3:PutObjectAcl",
+        "s3:PutObjectVersionAcl"
+      ],
+      "Resource": "arn:aws:s3:::evous/*"
     }
   ]
 }
@@ -233,6 +259,21 @@ AWS_REGION=us-east-2
 2. **Use o arquivo de teste** - `test-upload.html` para testar a API
 3. **Verifique o console do navegador** - Para erros de rede
 4. **Teste as credenciais AWS** - Use AWS CLI ou console
+
+### Erro Específico: "AccessControlListNotSupported"
+
+Se você receber este erro, significa que seu bucket S3 está configurado para não permitir ACLs:
+
+#### Solução:
+1. **Remova o parâmetro ACL** do código (já corrigido)
+2. **Use apenas a política de bucket** para tornar os objetos públicos
+3. **Configure o bucket para bloquear ACLs** (recomendado)
+
+#### Verificação:
+- Acesse o console AWS S3
+- Vá para o bucket `evous`
+- Verifique se há uma política de bucket que torna os objetos públicos
+- Confirme se o bucket está configurado para bloquear ACLs
 
 ### Erro: "Access Denied"
 - Verifique as permissões AWS
