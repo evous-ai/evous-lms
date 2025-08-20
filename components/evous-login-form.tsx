@@ -48,7 +48,7 @@ export function EvousLoginForm() {
     <div className="flex flex-col justify-center items-center min-h-screen bg-slate-50 dark:bg-background p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 hidden">
           <div className="flex justify-center mb-4">
             <Image src="/evous_logo_light.svg" alt="Evous" width={48} height={48} className="h-12 dark:hidden" />
             <Image src="/evous_logo.svg" alt="Evous" width={48} height={48} className="h-12 hidden dark:block" />
