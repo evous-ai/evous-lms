@@ -11,10 +11,11 @@ import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
-import { CheckCircle, AlertCircle, Info, User, Shield, Briefcase, Settings, Save } from "lucide-react"
+import { CheckCircle, AlertCircle, Info, User, Shield, Briefcase, Settings, Save, Edit } from "lucide-react"
 import { createClient } from "@/utils/supabase/client"
 import { THEMES } from "@/lib/constants"
 import { CountrySelect } from "@/components/ui/country-select"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { AvatarUpload } from "@/components/ui/avatar-upload"
 
 interface PerfilFormProps {
@@ -63,9 +64,14 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
   // Função para atualizar avatar
   const handleAvatarUpdate = useCallback((newAvatarUrl: string) => {
     setAvatarUrl(newAvatarUrl)
-    // Atualizar também no formData se necessário
-    setFormData(prev => ({ ...prev }))
   }, [])
+
+  // Estado para controlar o modal de upload
+  const [showAvatarUpload, setShowAvatarUpload] = useState(false)
+
+
+
+
 
   // Última atualização do perfil (do banco)
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(profile?.updated_at ?? null)
@@ -395,19 +401,61 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
         <TabsContent value="pessoais" className="mt-6 space-y-6">
           {isLoading ? renderSkeleton() : (
             <>
-              {/* Upload de Avatar */}
+              {/* Avatar */}
               <div className="space-y-4">
                 <Label>Foto do Perfil</Label>
-                <AvatarUpload
-                  currentAvatarUrl={avatarUrl}
-                  userId={user.id}
-                  onAvatarUpdate={handleAvatarUpdate}
-                  size="lg"
-                  className="mx-auto"
-                />
-                <p className="text-sm text-muted-foreground text-center">
-                  Clique na imagem para alterar sua foto de perfil
-                </p>
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-20 w-20 rounded-full overflow-hidden">
+                    <AvatarImage src={avatarUrl || undefined} className="object-cover" />
+                    <AvatarFallback className="text-lg">
+                      {profile?.full_name ? 
+                        profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : 
+                        user.email?.charAt(0).toUpperCase() || 'U'
+                      }
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowAvatarUpload(true)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Alterar Avatar
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Modal de Upload escondido */}
+                {showAvatarUpload && (
+                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-semibold">Alterar Foto do Perfil</h3>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setShowAvatarUpload(false)}
+                        >
+                          ✕
+                        </Button>
+                      </div>
+                      <AvatarUpload
+                        currentAvatarUrl={avatarUrl}
+                        userId={user.id}
+                        onAvatarUpdate={(newUrl) => {
+                          handleAvatarUpdate(newUrl)
+                          setShowAvatarUpload(false)
+                        }}
+                        size="lg"
+                        className="mx-auto"
+                      />
+                      <p className="text-sm text-muted-foreground text-center mt-2">
+                        Clique na imagem para alterar sua foto de perfil
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <Separator />
