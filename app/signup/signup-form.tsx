@@ -1,28 +1,38 @@
-'use client'
+"use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { User, Mail, Lock, Loader2 } from "lucide-react"
-import { CountrySelect } from "@/components/ui/country-select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { User, Mail, Lock, Globe } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { PoweredByEvous } from "@/components/powered-by-evous"
 import { createClient } from "@/utils/supabase/client"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Separator } from "@/components/ui/separator"
+
+interface SignupFormData {
+  full_name: string
+  email: string
+  password: string
+  country: string
+}
 
 export default function SignupForm() {
-  const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    password: '',
-    country: ''
+  const [formData, setFormData] = useState<SignupFormData>({
+    full_name: "",
+    email: "",
+    password: "",
+    country: ""
   })
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,127 +44,100 @@ export default function SignupForm() {
       return
     }
 
+    console.log('Iniciando cadastro...')
     setIsLoading(true)
 
     try {
       const supabase = createClient()
       
-      // Verifica se já há uma sessão ativa e faz logout
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        await supabase.auth.signOut()
-      }
-
-      // Criar usuário no Supabase Auth
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      console.log('Chamando signUp...')
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           data: {
             full_name: formData.full_name,
             country: formData.country,
-            notification: true
+            email: formData.email
           },
-          emailRedirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback`
+          emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       })
 
-      if (signUpError) {
-        let errorMessage = signUpError.message
-        
-        if (errorMessage.includes('User already registered')) {
-          errorMessage = 'Este e-mail já está registrado.'
-        } else if (errorMessage.includes('unique constraint') && errorMessage.includes('username')) {
-          errorMessage = 'O nome de usuário já está em uso. Por favor, escolha outro.'
-        }
-        
-        setError(errorMessage)
+      if (error) {
+        console.log('Erro no cadastro:', error.message)
+        setError(error.message)
         setIsLoading(false)
         return
       }
 
-      if (!data.user) {
-        setError('Erro ao criar usuário')
-        setIsLoading(false)
-        return
+      if (data.user) {
+        console.log('Cadastro bem-sucedido, redirecionando...')
+        setSuccess("Conta criada com sucesso! Redirecionando...")
+        
+        // Força logout para evitar sessão ativa
+        await supabase.auth.signOut()
+        
+        setTimeout(() => {
+          router.push("/dashboard")
+        }, 1000)
       }
-
-      // O trigger handle_new_user deve criar o perfil automaticamente
-      // Força logout para garantir que não haja sessão ativa
-      await supabase.auth.signOut()
-
-      setFormData({ full_name: '', email: '', password: '', country: '' })
-      setSuccess('✅ Registro realizado com sucesso! Verifique seu e-mail para confirmar a conta antes de fazer login.')
-      
-    } catch {
-      setError('Erro interno do servidor. Tente novamente.')
-    } finally {
+    } catch (error) {
+      console.error('Exceção no cadastro:', error)
+      setError("Erro interno do servidor")
       setIsLoading(false)
     }
   }
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof SignupFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-slate-50 dark:bg-background p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="text-center mb-8 hidden">
+        <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Image src="/evous_logo_light.svg" alt="Evous" width={48} height={48} className="h-12 dark:hidden" />
-            <Image src="/evous_logo.svg" alt="Evous" width={48} height={48} className="h-12 hidden dark:block" />
+            <Image
+              src="/logo_lubrax_lightmode.png"
+              alt="Lubrax"
+              width={160}
+              height={42}
+              className="h-8 w-auto block dark:hidden"
+              priority
+            />
+            <Image
+              src="/logo_lubrax_darkmode.png"
+              alt="Lubrax"
+              width={160}
+              height={42}
+              className="h-8 w-auto hidden dark:block"
+              priority
+            />
           </div>
         </div>
 
         {/* Formulário */}
-        <Card className="w-full">
+        <Card className="border-border/50 dark:border-border/20 bg-card shadow-none">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Criar conta</CardTitle>
+            <CardTitle className="text-xl text-center">Criar conta</CardTitle>
             <CardDescription className="text-center">
               Preencha as informações abaixo para criar sua conta
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {success && (
-              <div className="text-center space-y-2">
-                <div className="text-sm text-green-600 font-medium">
-                  ✅ Conta criada com sucesso!
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Após confirmar seu e-mail, você poderá fazer login.
-                </p>
-                <div className="space-y-2 pt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => window.location.href = "/"}
-                  >
-                    Ir para Login
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => {
-                      setSuccess("")
-                      setError("")
-                    }}
-                  >
-                    Criar Outra Conta
-                  </Button>
-                </div>
-              </div>
-            )}
-
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-
+            {success && (
+              <Alert>
+                <AlertDescription className="text-green-600">{success}</AlertDescription>
+              </Alert>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">
@@ -188,7 +171,6 @@ export default function SignupForm() {
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     required
-                    autoComplete="email"
                   />
                 </div>
               </div>
@@ -203,11 +185,10 @@ export default function SignupForm() {
                     id="password"
                     type="password"
                     placeholder="Mínimo 8 caracteres"
+                    className="pl-10"
                     value={formData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
-                    className="pl-10"
                     required
-                    autoComplete="new-password"
                   />
                 </div>
               </div>
@@ -216,49 +197,73 @@ export default function SignupForm() {
                 <Label htmlFor="country" className="text-sm font-medium">
                   País
                 </Label>
-                <CountrySelect
-                  value={formData.country}
-                  onValueChange={(value) => handleInputChange('country', value)}
-                  required
-                />
+                <div className="relative w-full">
+                  <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                  <Select 
+                    value={formData.country} 
+                    onValueChange={(value) => handleInputChange('country', value)}
+                    required
+                  >
+                    <SelectTrigger className="w-full pl-10">
+                      <SelectValue placeholder="Selecione seu país" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="br">Brasil</SelectItem>
+                      <SelectItem value="pt">Portugal</SelectItem>
+                      <SelectItem value="mx">México</SelectItem>
+                      <SelectItem value="ar">Argentina</SelectItem>
+                      <SelectItem value="co">Colômbia</SelectItem>
+                      <SelectItem value="pe">Peru</SelectItem>
+                      <SelectItem value="cl">Chile</SelectItem>
+                      <SelectItem value="ve">Venezuela</SelectItem>
+                      <SelectItem value="ec">Equador</SelectItem>
+                      <SelectItem value="bo">Bolívia</SelectItem>
+                      <SelectItem value="py">Paraguai</SelectItem>
+                      <SelectItem value="uy">Uruguai</SelectItem>
+                      <SelectItem value="gy">Guiana</SelectItem>
+                      <SelectItem value="sr">Suriname</SelectItem>
+                      <SelectItem value="other">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Criando conta...
-                  </>
-                ) : (
-                  "Criar conta"
-                )}
+              <Button 
+                className="w-full" 
+                size="lg"
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? "Criando conta..." : "Criar conta"}
               </Button>
-
-              <Separator />
-              
-              <div className="text-center text-sm text-muted-foreground">
-                Já tem uma conta?{" "}
-                <Link href="/" className="text-primary hover:underline font-medium">
-                  Fazer login
-                </Link>
-              </div>
             </form>
             
-            {/* Termos */}
-            <div className="pt-4">
-              <p className="text-xs text-center text-muted-foreground">
-                Ao criar uma conta, você concorda com nossos{" "}
-                <Link href="/terms" className="text-primary hover:underline">
-                  Termos de Serviço
-                </Link>{" "}
-                e{" "}
-                <Link href="/privacy" className="text-primary hover:underline">
-                  Política de Privacidade
-                </Link>
-              </p>
+            <Separator />
+            <div className="text-center text-sm text-muted-foreground">
+              Já tem uma conta?{" "}
+              <Link href="/" className="text-primary hover:underline font-medium">
+                Fazer login
+              </Link>
             </div>
           </CardContent>
         </Card>
+
+        {/* Termos */}
+        <p className="text-xs text-center text-muted-foreground mt-6">
+          Ao criar uma conta, você concorda com nossos{" "}
+          <Link href="/terms" className="text-primary hover:underline">
+            Termos de Serviço
+          </Link>{" "}
+          e{" "}
+          <Link href="/privacy" className="text-primary hover:underline">
+            Política de Privacidade
+          </Link>
+        </p>
+
+        {/* Powered by Evous */}
+        <div className="mt-8 text-center">
+          <PoweredByEvous size="md" />
+        </div>
       </div>
     </div>
   )
