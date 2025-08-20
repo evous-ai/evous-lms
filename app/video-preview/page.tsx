@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useReducer, useRef, useEffect } from "react";
+import { useState, useReducer, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/toggle-theme";
 import { Separator } from "@/components/ui/separator";
@@ -618,7 +618,7 @@ export default function VideoPreviewPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Avança para a próxima cena ou reseta para a primeira
-  const goToNextScene = () => {
+  const goToNextScene = useCallback(() => {
     if (sceneList.length === 0) return; // Não há cenas para navegar
     
     const currentIndex = sceneList.findIndex(scene => scene.id === selectedSceneId);
@@ -629,7 +629,7 @@ export default function VideoPreviewPage() {
       setIsPlaying(false);
       setSelectedSceneId(sceneList[0].id);
     }
-  };
+  }, [sceneList, selectedSceneId]);
 
   // Efeito para controlar reprodução automática
   useEffect(() => {
@@ -647,7 +647,7 @@ export default function VideoPreviewPage() {
         playTimeoutRef.current = null;
       }
     };
-  }, [isPlaying, selectedSceneId, sceneList.length]);
+  }, [isPlaying, selectedSceneId, sceneList.length, goToNextScene]);
 
   // Sincronizar áudio com play/pause
   useEffect(() => {
@@ -665,7 +665,7 @@ export default function VideoPreviewPage() {
     if (!isPlaying && audioRef.current) {
       (audioRef.current as HTMLAudioElement).pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, selectedSoundtrack]);
 
   // Resetar áudio ao voltar para Cena 1 após o fim
   useEffect(() => {
@@ -699,7 +699,7 @@ export default function VideoPreviewPage() {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [isPlaying, selectedSceneId, sceneList.length]);
+  }, [isPlaying, selectedSceneId, sceneList, SCENE_DURATION]);
 
   // Resetar tempo ao pausar ou trocar de cena manualmente
   useEffect(() => {
@@ -707,7 +707,7 @@ export default function VideoPreviewPage() {
       const currentSceneIndex = sceneList.findIndex(scene => scene.id === selectedSceneId);
       setCurrentTime(currentSceneIndex * SCENE_DURATION);
     }
-  }, [isPlaying, selectedSceneId, sceneList.length]);
+  }, [isPlaying, selectedSceneId, sceneList, SCENE_DURATION]);
 
   // Atualizar tempo total ao adicionar/remover cenas
   useEffect(() => {
@@ -715,7 +715,7 @@ export default function VideoPreviewPage() {
       const currentSceneIndex = sceneList.findIndex(scene => scene.id === selectedSceneId);
       setCurrentTime(currentSceneIndex * SCENE_DURATION);
     }
-  }, [sceneList.length]);
+  }, [sceneList, selectedSceneId, SCENE_DURATION, isPlaying]);
 
   // Função para formatar tempo em mm:ss
   function formatTime(seconds: number) {

@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator"
 import { Mail, Lock } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { createClient } from "@/utils/supabase/client"
 
 export function EvousLoginForm() {
@@ -49,8 +50,8 @@ export function EvousLoginForm() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <img src="/evous_logo_light.svg" alt="Evous" className="h-12 dark:hidden" />
-            <img src="/evous_logo.svg" alt="Evous" className="h-12 hidden dark:block" />
+            <Image src="/evous_logo_light.svg" alt="Evous" width={48} height={48} className="h-12 dark:hidden" />
+            <Image src="/evous_logo.svg" alt="Evous" width={48} height={48} className="h-12 hidden dark:block" />
           </div>
         </div>
 

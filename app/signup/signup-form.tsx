@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { User, Mail, Lock, Globe, Loader2 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { createClient } from "@/utils/supabase/client"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
@@ -85,7 +86,7 @@ export default function SignupForm() {
       setFormData({ full_name: '', email: '', password: '', country: '' })
       setSuccess('✅ Registro realizado com sucesso! Verifique seu e-mail para confirmar a conta antes de fazer login.')
       
-    } catch (error) {
+    } catch {
       setError('Erro interno do servidor. Tente novamente.')
     } finally {
       setIsLoading(false)
@@ -102,8 +103,8 @@ export default function SignupForm() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <img src="/evous_logo_light.svg" alt="Evous" className="h-12 dark:hidden" />
-            <img src="/evous_logo.svg" alt="Evous" className="h-12 hidden dark:block" />
+            <Image src="/evous_logo_light.svg" alt="Evous" width={48} height={48} className="h-12 dark:hidden" />
+            <Image src="/evous_logo.svg" alt="Evous" width={48} height={48} className="h-12 hidden dark:block" />
           </div>
         </div>
 

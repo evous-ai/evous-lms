@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useTheme } from "next-themes"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
@@ -77,7 +77,7 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
   const [senhaErrors, setSenhaErrors] = useState<{ [key: string]: string }>({})
 
   // Função para criar perfil automaticamente
-  const createProfileIfNotExists = async () => {
+  const createProfileIfNotExists = useCallback(async () => {
     if (profile) return profile // Se já existe, retorna
 
     try {
@@ -131,7 +131,7 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
       console.error('Erro ao criar perfil:', error)
       return null
     }
-  }
+  }, [profile, user.id, user.email])
 
   // Sincronizar dados quando usuário mudar
   useEffect(() => {
@@ -182,7 +182,7 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
     }
 
     initializeProfile()
-  }, [user, profile])
+  }, [user, profile, createProfileIfNotExists])
 
   // Sincronizar tema quando mudar
   useEffect(() => {
@@ -198,13 +198,13 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
   }
 
   // Função para atualizar perfil
-  const updateProfile = async (profileData: any) => {
+  const updateProfile = async (profileData: Record<string, unknown>) => {
     try {
       const supabase = createClient()
 
       // Filtrar apenas campos que não são undefined ou null
       const cleanData = Object.fromEntries(
-        Object.entries(profileData).filter(([_, value]) => value !== undefined && value !== null)
+        Object.entries(profileData).filter(([, value]) => value !== undefined && value !== null)
       )
       
       const { data, error } = await supabase
@@ -219,7 +219,7 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
       }
 
       return { success: true, profile: data }
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Erro interno do servidor' }
     }
   }
@@ -289,7 +289,7 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
         })
         
         if (result.success) {
-          setLastUpdatedAt((result.profile as any)?.updated_at ?? lastUpdatedAt)
+          setLastUpdatedAt((result.profile as { updated_at?: string })?.updated_at ?? lastUpdatedAt)
           showAlert('success', 'Informações pessoais atualizadas com sucesso!')
         } else {
           showAlert('error', result.error || 'Erro ao atualizar informações')
@@ -301,8 +301,8 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
         })
         
         if (result.success) {
-          setLastUpdatedAt((result.profile as any)?.updated_at ?? lastUpdatedAt)
-          showAlert('success', 'Dados profissionais atualizados com sucesso!')
+          setLastUpdatedAt((result.profile as { updated_at?: string })?.updated_at ?? lastUpdatedAt)
+          showAlert('success', 'Dados profissionais atualizadas com sucesso!')
         } else {
           showAlert('error', result.error || 'Erro ao atualizar dados profissionais')
         }
@@ -318,7 +318,7 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
         })
         
         if (result.success) {
-          setLastUpdatedAt((result.profile as any)?.updated_at ?? lastUpdatedAt)
+          setLastUpdatedAt((result.profile as { updated_at?: string })?.updated_at ?? lastUpdatedAt)
           showAlert('success', 'Preferências atualizadas com sucesso!')
         } else {
           showAlert('error', result.error || 'Erro ao atualizar preferências')
