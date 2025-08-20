@@ -41,8 +41,9 @@ Adicione as seguintes variáveis no seu `.env.local`:
 # AWS S3 Configuration
 AWS_ACCESS_KEY_ID=your_access_key_here
 AWS_SECRET_ACCESS_KEY=your_secret_key_here
-AWS_REGION=us-east-1
-AWS_S3_BUCKET_NAME=evous
+AWS_REGION=us-east-2
+AWS_BUCKET_NAME=evous
+```
 
 # Supabase Configuration (já existente)
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -177,6 +178,61 @@ O componente usa as variáveis CSS do tema Shadcn UI:
 - **lg**: 128x128px (`h-32 w-32`)
 
 ## 🐛 Troubleshooting
+
+### Erro: "Erro interno do servidor durante o upload"
+
+Este é o erro mais comum e pode ter várias causas:
+
+#### 1. **Variáveis de Ambiente Incorretas**
+```bash
+# ❌ Incorreto (não funcionará)
+AWS_S3_BUCKET_NAME=evous
+
+# ✅ Correto
+AWS_BUCKET_NAME=evous
+```
+
+#### 2. **Região AWS Incorreta**
+```bash
+# ❌ Incorreto (pode causar timeout)
+AWS_REGION=us-east-1
+
+# ✅ Correto (verifique sua região real)
+AWS_REGION=us-east-2
+```
+
+#### 3. **Credenciais AWS Inválidas**
+- Verifique se `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY` estão corretos
+- Confirme se as credenciais têm permissões para S3
+- Teste as credenciais no AWS CLI
+
+#### 4. **Bucket S3 Não Existe**
+- Confirme se o bucket `evous` existe na sua conta AWS
+- Verifique se está na região correta
+
+#### 5. **Permissões Insuficientes**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:PutObjectAcl"
+      ],
+      "Resource": "arn:aws:s3:::evous/lsm/avatar/*"
+    }
+  ]
+}
+```
+
+### Como Debuggar
+
+1. **Verifique os logs do servidor** - A API agora tem logs detalhados
+2. **Use o arquivo de teste** - `test-upload.html` para testar a API
+3. **Verifique o console do navegador** - Para erros de rede
+4. **Teste as credenciais AWS** - Use AWS CLI ou console
 
 ### Erro: "Access Denied"
 - Verifique as permissões AWS
