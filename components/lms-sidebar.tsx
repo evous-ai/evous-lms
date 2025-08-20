@@ -15,6 +15,7 @@ import {
 import { NavUserAluno } from "@/components/nav-user-aluno"
 import { AreaIndisponivelModal } from "@/components/modals/area-indisponivel-modal"
 import { useLinkInterceptor } from "@/hooks/use-link-interceptor"
+import { PoweredByEvous } from "@/components/powered-by-evous"
 import {
   Sidebar,
   SidebarContent,
@@ -45,7 +46,7 @@ function DynamicLogo() {
   const { theme } = useTheme()
   const { state } = useSidebar()
   const [logo, setLogo] = React.useState({
-    src: "/evous_logo.svg",
+    src: "/logo_lubrax_darkmode.png",
     width: 120,
     height: 40,
   })
@@ -53,19 +54,19 @@ function DynamicLogo() {
   React.useEffect(() => {
     if (state === "collapsed") {
       setLogo({
-        src: "/evous_logo_box.svg",
+        src: "/favicon_lubrax.png",
         width: 40,
         height: 40,
       })
     } else if (theme === "light") {
       setLogo({
-        src: "/evous_logo_light.svg",
+        src: "/logo_lubrax_lightmode.png",
         width: 120,
         height: 40,
       })
     } else {
       setLogo({
-        src: "/evous_logo.svg",
+        src: "/logo_lubrax_darkmode.png",
         width: 120,
         height: 40,
       })
@@ -82,7 +83,7 @@ function DynamicLogo() {
     <div className={state === "collapsed" ? "flex items-center justify-center py-3 min-h-[60px] w-full" : "px-4 py-3 flex items-center justify-start min-h-[60px] w-full overflow-hidden"}>
       <Image
         src={logo.src}
-        alt="Evous Logo"
+        alt="Lubrax Logo"
         width={logo.width}
         height={logo.height}
         priority
@@ -95,6 +96,7 @@ function DynamicLogo() {
 
 export function LMSSidebar({ user, profile, ...props }: LMSSidebarProps) {
   const { modalConfig, closeModal, interceptLink } = useLinkInterceptor()
+  const { state } = useSidebar()
 
   // Gerar iniciais do nome ou email
   const getInitials = () => {
@@ -203,6 +205,11 @@ export function LMSSidebar({ user, profile, ...props }: LMSSidebarProps) {
         {/* Footer com usuário */}
         <SidebarFooter>
           <NavUserAluno user={userData.user} />
+          {state !== "collapsed" && (
+            <div className="px-4 py-4 border-t border-border">
+              <PoweredByEvous size="sm" />
+            </div>
+          )}
         </SidebarFooter>
         
         <SidebarRail />

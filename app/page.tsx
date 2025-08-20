@@ -1,5 +1,5 @@
 import { requireGuest } from '@/lib/auth'
-import { EvousLoginForm } from '@/components/evous-login-form'
+import { EvousLoginForm } from "@/components/evous-login-form"
 
 export default async function HomePage() {
   // Verifica se o usuário já está autenticado

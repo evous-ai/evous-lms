@@ -11,6 +11,7 @@ import { Mail, Lock } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { createClient } from "@/utils/supabase/client"
+import { PoweredByEvous } from "@/components/powered-by-evous"
 
 export function EvousLoginForm() {
   const [email, setEmail] = useState("")
@@ -45,83 +46,88 @@ export function EvousLoginForm() {
   }
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-slate-50 dark:bg-background p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="text-center mb-8 hidden">
+        <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Image src="/evous_logo_light.svg" alt="Evous" width={48} height={48} className="h-12 dark:hidden" />
-            <Image src="/evous_logo.svg" alt="Evous" width={48} height={48} className="h-12 hidden dark:block" />
+            <Image
+              src="/logo_lubrax_lightmode.png"
+              alt="Lubrax"
+              width={160}
+              height={42}
+              className="h-8 w-auto block dark:hidden"
+              priority
+            />
+            <Image
+              src="/logo_lubrax_darkmode.png"
+              alt="Lubrax"
+              width={160}
+              height={42}
+              className="h-8 w-auto hidden dark:block"
+              priority
+            />
           </div>
         </div>
 
         {/* Formulário */}
-        <Card className="w-full">
+        <Card className="border-border/50 dark:border-border/20 bg-card shadow-none">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Bem-vindo de volta!</CardTitle>
+            <CardTitle className="text-xl text-center">Bem-vindo de volta!</CardTitle>
             <CardDescription className="text-center">
               Entre com suas credenciais para acessar sua conta
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {errorMsg && (
+              <div className="text-red-500 text-sm text-center">
+                {errorMsg}
+              </div>
+            )}
+            
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-sm font-medium">E-mail</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
                     autoComplete="email" 
                     id="email" 
                     type="email" 
-                    name="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
                     placeholder="seu@email.com" 
-                    disabled={isLoading}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10" 
                     required 
-                    className="pl-10"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
+                <Label htmlFor="password" className="text-sm font-medium">Senha</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
                     autoComplete="current-password" 
                     id="password" 
                     type="password" 
-                    name="password" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    placeholder="Sua senha" 
-                    disabled={isLoading}
+                    placeholder="••••••••" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10" 
                     required 
-                    className="pl-10"
                   />
                 </div>
               </div>
               <Button 
                 type="submit" 
+                className="w-full" 
+                size="lg"
                 disabled={isLoading}
-                className="w-full"
               >
-                {isLoading ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Entrando...</span>
-                  </div>
-                ) : (
-                  'Entrar'
-                )}
+                {isLoading ? "Entrando..." : "Entrar"}
               </Button>
-              {errorMsg && (
-                <p className="text-center text-sm text-destructive">{errorMsg}</p>
-              )}
             </form>
-            
             <Separator />
-            
             <div className="text-center text-sm text-muted-foreground">
               Não tem uma conta?{" "}
               <Link href="/signup" className="text-primary hover:underline font-medium">
@@ -130,6 +136,11 @@ export function EvousLoginForm() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Powered by Evous */}
+        <div className="mt-8 text-center">
+          <PoweredByEvous size="md" />
+        </div>
       </div>
     </div>
   )

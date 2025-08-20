@@ -18,6 +18,7 @@ import {
 
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
+import { PoweredByEvous } from "@/components/powered-by-evous"
 import {
   Sidebar,
   SidebarContent,
@@ -35,10 +36,10 @@ import {
 // This is sample data.
 const data = {
   user: {
-    name: "edgar.fonseca",
-    email: "edgar.fonseca@evous.ai",
+    name: "maria.eduarda",
+    email: "maria.eduarda@evous.ai",
     // avatar: undefined, // Não usar imagem
-    initials: "EF",
+    initials: "ME",
   },
   teams: [
     {
@@ -144,7 +145,7 @@ function DynamicLogo() {
   const { theme } = useTheme()
   const { state } = useSidebar()
   const [logo, setLogo] = React.useState({
-    src: "/evous_logo.svg",
+    src: "/logo_lubrax_darkmode.png",
     width: 120,
     height: 40,
   })
@@ -152,19 +153,19 @@ function DynamicLogo() {
   React.useEffect(() => {
     if (state === "collapsed") {
       setLogo({
-        src: "/evous_logo_box.svg",
+        src: "/favicon_lubrax.png",
         width: 40,
         height: 40,
       })
     } else if (theme === "light") {
       setLogo({
-        src: "/evous_logo_light.svg",
+        src: "/logo_lubrax_lightmode.png",
         width: 120,
         height: 40,
       })
     } else {
       setLogo({
-        src: "/evous_logo.svg",
+        src: "/logo_lubrax_darkmode.png",
         width: 120,
         height: 40,
       })
@@ -181,7 +182,7 @@ function DynamicLogo() {
     <div className={state === "collapsed" ? "flex items-center justify-center py-3 min-h-[60px] w-full" : "px-4 py-3 flex items-center justify-start min-h-[60px] w-full overflow-hidden"}>
       <Image
         src={logo.src}
-        alt="Evous Logo"
+        alt="Lubrax Logo"
         width={logo.width}
         height={logo.height}
         priority
@@ -193,6 +194,8 @@ function DynamicLogo() {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { state } = useSidebar()
+  
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="flex-shrink-0">
@@ -285,6 +288,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <TeamSwitcher teams={data.teams} />
         <NavUser user={data.user} />
+        {state !== "collapsed" && (
+          <div className="px-4 py-4 border-t border-border">
+            <PoweredByEvous size="sm" />
+          </div>
+        )}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
