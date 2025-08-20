@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { User, Mail, Lock, Globe, Loader2 } from "lucide-react"
+import { User, Mail, Lock, Loader2 } from "lucide-react"
+import { CountrySelect } from "@/components/ui/country-select"
 import Link from "next/link"
 import Image from "next/image"
 import { createClient } from "@/utils/supabase/client"
@@ -216,31 +216,11 @@ export default function SignupForm() {
                 <Label htmlFor="country" className="text-sm font-medium">
                   País
                 </Label>
-                <div className="relative">
-                  <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Select required onValueChange={(value) => handleInputChange('country', value)}>
-                    <SelectTrigger className="pl-10 w-full">
-                      <SelectValue placeholder="Selecione seu país" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="br">Brasil</SelectItem>
-                      <SelectItem value="pt">Portugal</SelectItem>
-                      <SelectItem value="mx">México</SelectItem>
-                      <SelectItem value="ar">Argentina</SelectItem>
-                      <SelectItem value="co">Colômbia</SelectItem>
-                      <SelectItem value="pe">Peru</SelectItem>
-                      <SelectItem value="cl">Chile</SelectItem>
-                      <SelectItem value="ve">Venezuela</SelectItem>
-                      <SelectItem value="ec">Equador</SelectItem>
-                      <SelectItem value="bo">Bolívia</SelectItem>
-                      <SelectItem value="py">Paraguai</SelectItem>
-                      <SelectItem value="uy">Uruguai</SelectItem>
-                      <SelectItem value="gy">Guiana</SelectItem>
-                      <SelectItem value="sr">Suriname</SelectItem>
-                      <SelectItem value="other">Outro</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <CountrySelect
+                  value={formData.country}
+                  onValueChange={(value) => handleInputChange('country', value)}
+                  required
+                />
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>

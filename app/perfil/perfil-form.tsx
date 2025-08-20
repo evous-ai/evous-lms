@@ -13,19 +13,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CheckCircle, AlertCircle, Info, User, Shield, Briefcase, Settings, Save } from "lucide-react"
 import { createClient } from "@/utils/supabase/client"
-
-// Lista de países
-const paises = [
-  "Brasil", "Argentina", "Chile", "Colômbia", "México", "Peru", "Uruguai", "Venezuela",
-  "Estados Unidos", "Canadá", "Reino Unido", "França", "Alemanha", "Espanha", "Itália", "Portugal"
-]
-
-// Lista de temas
-const temas = [
-  { value: "light", label: "Claro" },
-  { value: "dark", label: "Escuro" },
-  { value: "auto", label: "Automático" }
-]
+import { THEMES } from "@/lib/constants"
+import { CountrySelect } from "@/components/ui/country-select"
+import { AvatarUpload } from "@/components/ui/avatar-upload"
 
 interface PerfilFormProps {
   user: {
@@ -66,6 +56,16 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
     notification: profile?.notification ?? true,
     tema: theme || "auto"
   })
+
+  // Estado para avatar
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(profile?.avatar_url || null)
+
+  // Função para atualizar avatar
+  const handleAvatarUpdate = useCallback((newAvatarUrl: string) => {
+    setAvatarUrl(newAvatarUrl)
+    // Atualizar também no formData se necessário
+    setFormData(prev => ({ ...prev }))
+  }, [])
 
   // Última atualização do perfil (do banco)
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(profile?.updated_at ?? null)
@@ -395,6 +395,23 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
         <TabsContent value="pessoais" className="mt-6 space-y-6">
           {isLoading ? renderSkeleton() : (
             <>
+              {/* Upload de Avatar */}
+              <div className="space-y-4">
+                <Label>Foto do Perfil</Label>
+                <AvatarUpload
+                  currentAvatarUrl={avatarUrl}
+                  userId={user.id}
+                  onAvatarUpdate={handleAvatarUpdate}
+                  size="lg"
+                  className="mx-auto"
+                />
+                <p className="text-sm text-muted-foreground text-center">
+                  Clique na imagem para alterar sua foto de perfil
+                </p>
+              </div>
+
+              <Separator />
+
               <div className="space-y-2">
                 <Label htmlFor="username">Nome de usuário</Label>
                 <Input
@@ -512,18 +529,11 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="country">País</Label>
-                <Select value={formData.country} onValueChange={(value: string) => setFormData({ ...formData, country: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um país" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {paises.map((pais) => (
-                      <SelectItem key={pais} value={pais}>
-                        {pais}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <CountrySelect
+                  value={formData.country}
+                  onValueChange={(value: string) => setFormData({ ...formData, country: value })}
+                  placeholder="Selecione um país"
+                />
                 <p className="text-sm text-muted-foreground">
                   País onde você atua profissionalmente
                 </p>
@@ -670,7 +680,7 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
                     <SelectValue placeholder="Selecione um tema" />
                   </SelectTrigger>
                   <SelectContent>
-                    {temas.map((tema) => (
+                    {THEMES.map((tema) => (
                       <SelectItem key={tema.value} value={tema.value}>
                         {tema.label}
                       </SelectItem>
