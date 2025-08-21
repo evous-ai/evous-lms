@@ -14,8 +14,9 @@ import { TrainingCard } from "@/components/TrainingCard"
 import Link from "next/link"
 import Image from "next/image"
 import { PoweredByEvous } from "@/components/powered-by-evous"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useCompanyColor, useCompanyLogo } from "@/components/providers/company-provider"
+import { getCategoriesByCompanyClient, Category } from "@/lib/categories"
 
 // Dados dos treinamentos
 const treinamentos: Array<{
@@ -111,9 +112,6 @@ const treinamentos: Array<{
   }
 ]
 
-// Categorias disponíveis
-const categorias = ["Todas as Categorias", "Identidade Visual", "Estratégia Comercial", "Produtos & Combustíveis", "Tecnologia", "Tratamento", "Patologia"]
-
 // Status disponíveis
 const status = ["Todos os Status", "Em Andamento", "Concluído", "Não Iniciado"]
 
@@ -125,6 +123,7 @@ interface DashboardClientProps {
   profile: {
     full_name?: string | null
     country?: string | null
+    company_id?: string | null
   } | null
 }
 
@@ -132,10 +131,57 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
   const [busca, setBusca] = useState("")
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas as Categorias")
   const [statusFiltro, setStatusFiltro] = useState("Todos os Status")
+  const [categorias, setCategorias] = useState<Category[]>([])
+  const [loadingCategorias, setLoadingCategorias] = useState(true)
 
   // Hooks para dados da empresa
   const primaryColor = useCompanyColor()
   const { darkLogo } = useCompanyLogo()
+
+  // Buscar categorias do banco de dados
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      if (!profile?.company_id) {
+        console.log('Company ID não encontrado no perfil:', profile)
+        setLoadingCategorias(false)
+        return
+      }
+
+      try {
+        console.log('Buscando categorias para company_id:', profile.company_id)
+        setLoadingCategorias(true)
+        const result = await getCategoriesByCompanyClient(profile.company_id)
+        
+        if (result.success && result.categories) {
+          console.log('Categorias carregadas com sucesso:', result.categories.length)
+          setCategorias(result.categories)
+        } else {
+          console.warn('Erro ao buscar categorias:', result.error)
+          // Em caso de erro, mantém as categorias padrão
+          setCategorias([])
+        }
+      } catch (error) {
+        console.error('Erro ao buscar categorias:', error)
+        setCategorias([])
+      } finally {
+        setLoadingCategorias(false)
+      }
+    }
+
+    fetchCategorias()
+  }, [profile?.company_id])
+
+  // Preparar opções de categorias para o filtro
+  const opcoesCategorias = useMemo(() => {
+    const categoriasBase = ["Todas as Categorias"]
+    if (categorias.length > 0) {
+      categorias.forEach(cat => categoriasBase.push(cat.name))
+    } else {
+      // Fallback para categorias padrão se não houver dados do banco
+      categoriasBase.push("Identidade Visual", "Estratégia Comercial", "Produtos & Combustíveis", "Tecnologia", "Tratamento", "Patologia")
+    }
+    return categoriasBase
+  }, [categorias])
 
   // Filtros aplicados
   const treinamentosFiltrados = useMemo(() => {
@@ -224,13 +270,14 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
                 {/* Filtro de categoria */}
                 <div className="w-full sm:w-48">
                   <Combobox
-                    options={categorias.map(cat => ({ value: cat, label: cat }))}
+                    options={opcoesCategorias.map(cat => ({ value: cat, label: cat }))}
                     value={categoriaFiltro}
                     onValueChange={setCategoriaFiltro}
-                    placeholder="Categoria"
+                    placeholder={loadingCategorias ? "Carregando categorias..." : "Categoria"}
                     searchPlaceholder="Buscar categoria..."
-                    emptyText="Nenhuma categoria encontrada."
+                    emptyText={loadingCategorias ? "Carregando..." : "Nenhuma categoria encontrada."}
                   />
+                  
                 </div>
 
                 {/* Filtro de status */}
@@ -269,6 +316,7 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
                 </span>
               </div>
             )}
+
 
             {/* Grid de treinamentos */}
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
