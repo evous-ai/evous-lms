@@ -12,8 +12,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Search, Filter, X, Play } from "lucide-react"
 import { TrainingCard } from "@/components/TrainingCard"
 import Link from "next/link"
+import Image from "next/image"
 import { PoweredByEvous } from "@/components/powered-by-evous"
 import { useState, useMemo } from "react"
+import { useCompanyColor, useCompanyLogo } from "@/components/providers/company-provider"
 
 // Dados dos treinamentos
 const treinamentos: Array<{
@@ -131,6 +133,10 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas as Categorias")
   const [statusFiltro, setStatusFiltro] = useState("Todos os Status")
 
+  // Hooks para dados da empresa
+  const primaryColor = useCompanyColor()
+  const { darkLogo } = useCompanyLogo()
+
   // Filtros aplicados
   const treinamentosFiltrados = useMemo(() => {
     return treinamentos.filter(treinamento => {
@@ -164,7 +170,7 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
       <SidebarInset>
         <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 bg-slate-50 dark:bg-background">
           {/* WelcomeHero - Banner pessoal */}
-          <Card className="bg-[#144722] text-white border-0 shadow-none">
+          <Card className="text-white border-0 shadow-none" style={{ backgroundColor: primaryColor }}>
             <CardContent className="p-8">
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-12">
                 <div className="space-y-3 flex-1">
@@ -184,10 +190,13 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
                   </div>
                 </div>
                 <div className="flex-shrink-0">
-                  <img 
-                    src="/logo_lubrax.png" 
-                    alt="Logo Lubrax" 
+                  <Image 
+                    src={darkLogo} 
+                    alt="Logo da Empresa" 
+                    width={160}
+                    height={40}
                     className="h-10 w-auto object-contain"
+                    style={{ width: "auto", height: "auto" }}
                   />
                 </div>
               </div>

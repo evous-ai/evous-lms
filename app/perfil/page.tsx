@@ -1,4 +1,4 @@
-import { requireAuth, getAuthenticatedUser } from '@/lib/auth'
+import { requireAuth, getAuthenticatedUser } from '@/lib/auth-server'
 import { LMSSidebar } from "@/components/lms-sidebar"
 import {
   SidebarInset,

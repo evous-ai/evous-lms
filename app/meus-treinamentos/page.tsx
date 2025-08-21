@@ -1,5 +1,5 @@
-import { requireAuth, getAuthenticatedUser } from '@/lib/auth'
-import { MeusTreinamentosClient } from './meus-treinamentos-client'
+import { requireAuth, getAuthenticatedUser } from '@/lib/auth-server'
+import MeusTreinamentosClient from './meus-treinamentos-client'
 
 export default async function MeusTreinamentosPage() {
   await requireAuth()

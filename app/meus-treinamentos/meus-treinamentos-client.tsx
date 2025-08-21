@@ -125,7 +125,7 @@ const categorias = ["Todas", "Identidade Visual", "Estratégia Comercial", "Prod
 // Status disponíveis
 const status = ["Todos", "concluido", "em-andamento", "nao-iniciado"]
 
-export function MeusTreinamentosClient({ user, profile }: MeusTreinamentosClientProps) {
+export default function MeusTreinamentosClient({ user, profile }: MeusTreinamentosClientProps) {
   const [busca, setBusca] = useState("")
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas")
   const [statusFiltro, setStatusFiltro] = useState("Todos")

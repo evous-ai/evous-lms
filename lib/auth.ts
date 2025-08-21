@@ -1,6 +1,4 @@
 import { createClient } from '@/utils/supabase/client'
-import { createClient as createServerClient } from '@/utils/supabase/server'
-import { redirect } from 'next/navigation'
 import { SignupData, LoginData, ProfileUpdateData, AuthUser, Profile } from './types'
 
 // Função para gerar username único baseado no nome completo
@@ -191,90 +189,6 @@ export async function getCurrentUser(): Promise<{ success: boolean; error?: stri
   } catch (error) {
     console.error('getCurrentUser - Exceção:', error)
     return { success: false, error: 'Erro interno do servidor' }
-  }
-}
-
-// ===== FUNÇÕES SERVER-SIDE (como no projeto lms) =====
-
-export type AuthenticatedUser = {
-  user: {
-    id: string
-    email?: string
-  }
-  profile: Profile | null
-}
-
-export type AuthStatus = {
-  isAuthenticated: boolean
-  user: {
-    id: string
-    email?: string
-  } | null
-}
-
-/**
- * Função utilitária para páginas que precisam de autenticação
- * Retorna os dados do usuário e perfil, ou redireciona para login
- */
-export async function getAuthenticatedUser(): Promise<AuthenticatedUser> {
-  const supabase = createServerClient()
-  
-  // Busca o usuário autenticado
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
-  
-  if (userError || !user) {
-    redirect('/')
-  }
-  
-  // Busca o perfil do usuário
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-  
-  if (profileError) {
-    // Se não encontrar perfil, cria um básico
-    console.warn('Perfil não encontrado para usuário:', user.id)
-  }
-  
-  return {
-    user,
-    profile: profile || null
-  }
-}
-
-/**
- * Função para verificar se o usuário está autenticado sem redirecionar
- * Útil para componentes que precisam saber o status da autenticação
- */
-export async function checkAuthStatus(): Promise<AuthStatus> {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  return { isAuthenticated: !!user, user: user || null }
-}
-
-/**
- * Função para verificar se o usuário está autenticado e redirecionar se necessário
- * Para páginas que devem ser acessadas apenas por usuários NÃO autenticados
- */
-export async function requireGuest() {
-  const { isAuthenticated } = await checkAuthStatus()
-  
-  if (isAuthenticated) {
-    redirect('/dashboard')
-  }
-}
-
-/**
- * Função para verificar se o usuário está autenticado e redirecionar se necessário
- * Para páginas que devem ser acessadas apenas por usuários autenticados
- */
-export async function requireAuth() {
-  const { isAuthenticated } = await checkAuthStatus()
-  
-  if (!isAuthenticated) {
-    redirect('/')
   }
 }
 
