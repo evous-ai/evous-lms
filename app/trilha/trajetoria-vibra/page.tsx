@@ -1,5 +1,5 @@
-import { requireAuth, getAuthenticatedUser } from '@/lib/auth'
-import { TrajetoriaVibraClient } from './trajetoria-vibra-client'
+import { requireAuth, getAuthenticatedUser } from '@/lib/auth-server'
+import TrajetoriaVibraClient from './trajetoria-vibra-client'
 
 export default async function TrajetoriaVibraPage() {
   await requireAuth()

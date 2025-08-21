@@ -37,7 +37,7 @@ const lesson = {
   nextHref: '/trilha/trajetoria-vibra'
 };
 
-export function Aula3GovernancaCulturaClient({ user, profile }: Aula3GovernancaCulturaClientProps) {
+export default function Aula3GovernancaCulturaClient({ user, profile }: Aula3GovernancaCulturaClientProps) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Estado inicial fechado

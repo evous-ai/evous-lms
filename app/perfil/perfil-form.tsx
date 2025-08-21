@@ -34,6 +34,7 @@ interface PerfilFormProps {
     age?: string | null
     position?: string | null
     notification?: boolean | null
+    company_id?: string | null
     updated_at?: string | null
   } | null
 }
@@ -99,7 +100,8 @@ export function PerfilForm({ user, profile }: PerfilFormProps) {
           email: user.email,
           full_name: user.email?.split('@')[0] || 'Usuário',
           username: user.email?.split('@')[0] || 'usuario',
-          notification: true
+          notification: true,
+          company_id: "c9551059-35fb-4c5e-bcb7-bc09ddc25f31"
         })
         .select()
         .single()

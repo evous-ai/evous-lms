@@ -1,4 +1,4 @@
-import { requireGuest } from '@/lib/auth'
+import { requireGuest } from '@/lib/auth-server'
 import { EvousLoginForm } from "@/components/evous-login-form"
 
 export default async function HomePage() {

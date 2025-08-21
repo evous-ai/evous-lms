@@ -16,6 +16,7 @@ import { NavUserAluno } from "@/components/nav-user-aluno"
 import { AreaIndisponivelModal } from "@/components/modals/area-indisponivel-modal"
 import { useLinkInterceptor } from "@/hooks/use-link-interceptor"
 import { PoweredByEvous } from "@/components/powered-by-evous"
+import { useCompanyLogo } from "@/components/providers/company-provider"
 import {
   Sidebar,
   SidebarContent,
@@ -45,47 +46,49 @@ interface LMSSidebarProps extends React.ComponentProps<typeof Sidebar> {
 function DynamicLogo() {
   const { theme } = useTheme()
   const { state } = useSidebar()
-  const [logo, setLogo] = React.useState({
-    src: "/logo_lubrax_darkmode.png",
+  const { logo, darkLogo, icon } = useCompanyLogo()
+  
+  const [logoConfig, setLogoConfig] = React.useState({
+    src: darkLogo,
     width: 120,
     height: 40,
   })
 
   React.useEffect(() => {
     if (state === "collapsed") {
-      setLogo({
-        src: "/favicon_lubrax.png",
+      setLogoConfig({
+        src: icon,
         width: 40,
         height: 40,
       })
     } else if (theme === "light") {
-      setLogo({
-        src: "/logo_lubrax_lightmode.png",
+      setLogoConfig({
+        src: logo,
         width: 120,
         height: 40,
       })
     } else {
-      setLogo({
-        src: "/logo_lubrax_darkmode.png",
+      setLogoConfig({
+        src: darkLogo,
         width: 120,
         height: 40,
       })
     }
-  }, [state, theme])
+  }, [state, theme, logo, darkLogo, icon])
 
   // Log para depuração
-  if (!logo.width || !logo.height) {
-    console.error("Logo state inválido:", logo)
+  if (!logoConfig.width || !logoConfig.height) {
+    console.error("Logo state inválido:", logoConfig)
     return null // Não renderiza nada se width/height não estiverem definidos
   }
 
   return (
     <div className={state === "collapsed" ? "flex items-center justify-center py-3 min-h-[60px] w-full" : "px-4 py-3 flex items-center justify-start min-h-[60px] w-full overflow-hidden"}>
       <Image
-        src={logo.src}
-        alt="Lubrax Logo"
-        width={logo.width}
-        height={logo.height}
+        src={logoConfig.src}
+        alt="Logo da Empresa"
+        width={logoConfig.width}
+        height={logoConfig.height}
         priority
         className={state === "collapsed" ? "transition-all duration-200 object-contain flex-shrink-0 mx-auto" : "transition-all duration-200 object-contain flex-shrink-0"}
         style={{ width: "auto", height: "auto" }}

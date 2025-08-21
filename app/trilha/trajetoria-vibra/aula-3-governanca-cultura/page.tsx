@@ -1,5 +1,5 @@
-import { requireAuth, getAuthenticatedUser } from '@/lib/auth'
-import { Aula3GovernancaCulturaClient } from './aula-3-governanca-cultura-client'
+import { requireAuth, getAuthenticatedUser } from '@/lib/auth-server'
+import Aula3GovernancaCulturaClient from './aula-3-governanca-cultura-client'
 
 export default async function Aula3GovernancaCulturaPage() {
   await requireAuth()

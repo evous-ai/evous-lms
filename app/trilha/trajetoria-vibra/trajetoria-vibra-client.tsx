@@ -62,7 +62,7 @@ const curso = {
   ],
 };
 
-export function TrajetoriaVibraClient({ user, profile }: TrajetoriaVibraClientProps) {
+export default function TrajetoriaVibraClient({ user, profile }: TrajetoriaVibraClientProps) {
   const [accordionValue, setAccordionValue] = useState<string[]>(['m1', 'm2']);
 
   const fecharTodosModulos = () => {
