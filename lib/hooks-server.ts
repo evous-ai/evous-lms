@@ -172,6 +172,7 @@ export async function getCourseById(courseId: string, userId?: string) {
     // Calcular duração total
     const totalDurationSeconds = courseData.modulos.reduce((acc, module) => 
       acc + module.aulas.reduce((acc2, aula) => {
+        // Converter duração do formato "MM:SS" para segundos
         const [minutes, seconds] = aula.duracao.split(':').map(Number)
         return acc2 + (minutes * 60 + seconds)
       }, 0), 0
