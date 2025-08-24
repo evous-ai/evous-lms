@@ -17,7 +17,7 @@ export default async function TrilhaPage({ params }: TrilhaPageProps) {
   const { slug: courseId } = await params
   
   // Buscar dados do curso server-side usando o ID
-  const courseData = await getCourseById(courseId)
+  const courseData = await getCourseById(courseId, user.id)
   
   // Se não encontrar o curso, mostrar 404
   if (courseData.error || !courseData.course) {

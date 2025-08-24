@@ -11,6 +11,9 @@ Agora os nomes dos módulos e detalhes dos vídeos são buscados dinamicamente d
 - ✅ **Ordenação por campo `order`** (não `order_index`)
 - ✅ **Dados completos** do banco Supabase real
 - ✅ **Módulos sempre expandidos** por padrão para melhor UX
+- ✅ **Página de detalhes do vídeo** dinâmica e funcional
+- ✅ **Navegação entre aulas** (anterior/próxima)
+- ✅ **Player de vídeo** integrado com dados do banco
 
 ## 📁 **Arquivos Modificados**
 
@@ -172,6 +175,52 @@ const [accordionValue, setAccordionValue] = useState<string[]>(() => {
 - 🎯 **Menos cliques** para acessar informações dos vídeos
 - 🎯 **Melhor navegação** entre módulos e aulas
 - 🎯 **Experiência consistente** em todas as páginas de curso
+
+## 🎬 **Página de Detalhes do Vídeo**
+
+### **Funcionalidades Implementadas:**
+- ✅ **Player de vídeo** integrado com dados do banco
+- ✅ **Breadcrumb dinâmico** com navegação completa
+- ✅ **Sistema de avaliação** com estrelas (1-5)
+- ✅ **Descrição do vídeo** quando disponível
+- ✅ **Navegação entre aulas** (anterior/próxima)
+- ✅ **Sidebar de progresso** sempre visível
+- ✅ **Modal de suporte** integrado
+- ✅ **Layout responsivo** para mobile e desktop
+
+### **Estrutura da URL:**
+```
+/trilha/[courseId]/[videoId]
+```
+
+### **Exemplo de Uso:**
+```
+/trilha/550e8400-e29b-41d4-a716-446655440000/video-123
+```
+
+### **Dados Dinâmicos:**
+- **Título do vídeo** - Buscado do campo `title` da tabela `videos`
+- **Descrição** - Buscada do campo `description` da tabela `videos`
+- **URL do vídeo** - Buscada do campo `video_url` da tabela `videos`
+- **Duração** - Calculada a partir do campo `duration` da tabela `videos`
+- **Módulo** - Contexto do módulo ao qual o vídeo pertence
+
+### **Navegação Inteligente:**
+```typescript
+// Calcular vídeos anterior e próximo
+const allVideos = course.modulos.flatMap(modulo => 
+  modulo.aulas.map(aula => ({ ...aula, moduleId: modulo.id }))
+);
+const currentVideoIndex = allVideos.findIndex(v => v.id === videoId);
+const prevVideo = currentVideoIndex > 0 ? allVideos[currentVideoIndex - 1] : null;
+const nextVideo = currentVideoIndex < allVideos.length - 1 ? allVideos[currentVideoIndex + 1] : null;
+```
+
+### **Componentes Utilizados:**
+- **`VideoDetailsClient`** - Componente principal da página
+- **`ProgressSidebar`** - Sidebar de progresso do curso
+- **`ContactSupportModal`** - Modal de suporte ao usuário
+- **`LMSSidebar`** - Sidebar principal da aplicação
 
 ## 🔮 **Próximos Passos**
 

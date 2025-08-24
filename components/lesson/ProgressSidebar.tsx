@@ -7,49 +7,84 @@ import { CourseModulesList } from '@/components/course';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { TutorPanel } from './TutorPanel';
 
-// Mock do curso (usando a mesma estrutura da página principal)
-const cursoMock = {
-  titulo: 'Trajetória Vibra',
-  descricao: 'A história e evolução da Vibra no mercado brasileiro',
-  totalVideos: 8,
-  concluidos: 3,
-  percent: 38,
-  duracaoTotal: '2h30min',
-  categoria: 'Estratégia Comercial',
-  modulos: [
-    {
-      id: 'm1',
-      titulo: 'Origens e Expansão',
-      resumo: '5 vídeos · 1h45min',
-      aulas: [
-        { id: 'aula-1-origens-vibra', titulo: 'Aula 1 – Origens da Vibra no Brasil', duracao: '18:45', status: 'concluida' as const, href: '/trilha/trajetoria-vibra/aula-3-governanca-cultura' },
-        { id: 'aula-2-expansao-nacional', titulo: 'Aula 2 – Expansão Nacional', duracao: '22:15', status: 'concluida' as const, href: '/trilha/trajetoria-vibra/aula-3-governanca-cultura' },
-        { id: 'aula-3-governanca-cultura', titulo: 'Aula 3 – Governança e Cultura', duracao: '12:30', status: 'disponivel' as const, href: '/trilha/trajetoria-vibra/aula-3-governanca-cultura' },
-        { id: 'aula-4-portfolio-inovacao', titulo: 'Aula 4 – Portfólio e Inovação', duracao: '16:10', status: 'nao_iniciada' as const, href: '/trilha/trajetoria-vibra/aula-3-governanca-cultura' },
-        { id: 'aula-5-esg', titulo: 'Aula 5 – Sustentabilidade e ESG', duracao: '15:20', status: 'nao_iniciada' as const, href: '/trilha/trajetoria-vibra/aula-3-governanca-cultura' },
-      ],
-    },
-    {
-      id: 'm2',
-      titulo: 'Atualidade e Futuro',
-      resumo: '3 vídeos · 45min',
-      aulas: [
-        { id: 'aula-6-mercado-concorrencia', titulo: 'Aula 6 – Mercado e Concorrência', duracao: '09:50', status: 'nao_iniciada' as const, href: '/trilha/trajetoria-vibra/aula-3-governanca-cultura' },
-        { id: 'aula-7-parcerias-estrategicas', titulo: 'Aula 7 – Parcerias Estratégicas', duracao: '11:05', status: 'nao_iniciada' as const, href: '/trilha/trajetoria-vibra/aula-3-governanca-cultura' },
-        { id: 'aula-8-visao-futuro', titulo: 'Aula 8 – Visão de Futuro', duracao: '24:10', status: 'nao_iniciada' as const, href: '/trilha/trajetoria-vibra/aula-3-governanca-cultura' },
-      ],
-    },
-  ],
-};
+// Interface para os dados do curso
+interface CourseData {
+  id: string;
+  titulo: string;
+  descricao: string;
+  totalVideos: number;
+  concluidos: number;
+  percent: number;
+  duracaoTotal: string;
+  categoria: string;
+  modulos: Array<{
+    id: string;
+    titulo: string;
+    resumo: string;
+    aulas: Array<{
+      id: string;
+      titulo: string;
+      duracao: string;
+      status: 'concluida' | 'disponivel' | 'bloqueada' | 'nao_iniciada';
+      video_url?: string | null;
+      description?: string | null;
+    }>;
+  }>;
+}
 
 interface ProgressSidebarProps {
   isOpen?: boolean;
   onToggle?: () => void;
   mode?: 'progresso' | 'tutor';
+  courseData?: CourseData; // Dados dinâmicos do curso
+  courseId?: string; // ID do curso para navegação
 }
 
-export function ProgressSidebar({ isOpen = false, onToggle, mode = 'progresso' }: ProgressSidebarProps) {
-  const [expandedModules, setExpandedModules] = useState<string[]>(['m1', 'm2']); // Todos os módulos expandidos por padrão
+export function ProgressSidebar({ 
+  isOpen = false, 
+  onToggle, 
+  mode = 'progresso',
+  courseData,
+}: ProgressSidebarProps) {
+  // Dados do curso (dinâmicos ou fallback para mock)
+  const curso = courseData || {
+    titulo: 'Trajetória Vibra',
+    descricao: 'A história e evolução da Vibra no mercado brasileiro',
+    totalVideos: 8,
+    concluidos: 3,
+    percent: 38,
+    duracaoTotal: '2h30min',
+    categoria: 'Estratégia Comercial',
+    modulos: [
+      {
+        id: 'm1',
+        titulo: 'Origens e Expansão',
+        resumo: '5 vídeos · 1h45min',
+        aulas: [
+          { id: 'aula-1-origens-vibra', titulo: 'Aula 1 – Origens da Vibra no Brasil', duracao: '18:45', status: 'concluida' as const },
+          { id: 'aula-2-expansao-nacional', titulo: 'Aula 2 – Expansão Nacional', duracao: '22:15', status: 'concluida' as const },
+          { id: 'aula-3-governanca-cultura', titulo: 'Aula 3 – Governança e Cultura', duracao: '12:30', status: 'disponivel' as const },
+          { id: 'aula-4-portfolio-inovacao', titulo: 'Aula 4 – Portfólio e Inovação', duracao: '16:10', status: 'nao_iniciada' as const },
+          { id: 'aula-5-esg', titulo: 'Aula 5 – Sustentabilidade e ESG', duracao: '15:20', status: 'nao_iniciada' as const },
+        ],
+      },
+      {
+        id: 'm2',
+        titulo: 'Atualidade e Futuro',
+        resumo: '3 vídeos · 45min',
+        aulas: [
+          { id: 'aula-6-mercado-concorrencia', titulo: 'Aula 6 – Mercado e Concorrência', duracao: '09:50', status: 'nao_iniciada' as const },
+          { id: 'aula-7-parcerias-estrategicas', titulo: 'Aula 7 – Parcerias Estratégicas', duracao: '11:05', status: 'nao_iniciada' as const },
+          { id: 'aula-8-visao-futuro', titulo: 'Aula 8 – Visão de Futuro', duracao: '24:10', status: 'nao_iniciada' as const },
+        ],
+      },
+    ],
+  };
+
+  const [expandedModules, setExpandedModules] = useState<string[]>(() => {
+    // Inicializar todos os módulos como expandidos por padrão
+    return curso.modulos.map(modulo => modulo.id);
+  });
   const [isMobile, setIsMobile] = useState(false);
 
   // Detectar se é mobile
@@ -131,9 +166,10 @@ export function ProgressSidebar({ isOpen = false, onToggle, mode = 'progresso' }
             {mode === 'progresso' ? (
               <div className="p-4">
                 <CourseModulesList
-                  modulos={cursoMock.modulos}
+                  modulos={curso.modulos}
                   onModuleToggle={toggleModule}
                   expandedModules={expandedModules}
+                  courseId={courseData?.id || '550e8400-e29b-41d4-a716-446655440000'}
                 />
               </div>
             ) : (
@@ -196,9 +232,10 @@ export function ProgressSidebar({ isOpen = false, onToggle, mode = 'progresso' }
         // Lista de módulos usando o componente reutilizável
         <div className="px-6 py-4 bg-white dark:bg-gray-950">
           <CourseModulesList
-            modulos={cursoMock.modulos}
+            modulos={curso.modulos}
             onModuleToggle={toggleModule}
             expandedModules={expandedModules}
+            courseId={courseData?.id || '550e8400-e29b-41d4-a716-446655440000'}
           />
         </div>
       ) : (

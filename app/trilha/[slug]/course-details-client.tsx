@@ -1,20 +1,16 @@
 "use client"
 
-import Link from 'next/link';
-import { LMSSidebar } from "@/components/lms-sidebar";
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
-import { Card, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-
-import { Play, Clock, Home } from 'lucide-react';
-import { useState } from 'react';
-import { CourseModulesList } from '@/components/course';
-import { truncateText } from '@/lib/utils';
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardDescription } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
+import { LMSSidebar } from '@/components/lms-sidebar'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { CourseModulesList } from '@/components/course/CourseModulesList'
+import { truncateText } from '@/lib/utils'
+import { Home, Clock, Play } from 'lucide-react'
+import Link from 'next/link'
 
 // Interface para os dados do curso
 interface Aula {
@@ -34,6 +30,7 @@ interface Modulo {
 }
 
 interface Course {
+  id: string;
   titulo: string;
   descricao: string;
   totalVideos: number;
@@ -44,7 +41,6 @@ interface Course {
   modulos: Modulo[];
 }
 
-// Props do componente
 interface CourseDetailsClientProps {
   user: {
     id: string
@@ -55,7 +51,7 @@ interface CourseDetailsClientProps {
     country?: string | null
   } | null
   course: Course
-  courseId: string // Alterado de slug para courseId
+  courseId: string
 }
 
 export default function CourseDetailsClient({ user, profile, course, courseId }: CourseDetailsClientProps) {
@@ -66,25 +62,17 @@ export default function CourseDetailsClient({ user, profile, course, courseId }:
   })
 
   const fecharTodosModulos = () => {
-    setAccordionValue([]);
-  };
+    setAccordionValue([])
+  }
 
-  const abrirTodosModulos = () => {
-    setAccordionValue(course.modulos.map(modulo => modulo.id));
-  };
+  const expandirTodosModulos = () => {
+    setAccordionValue(course.modulos.map(modulo => modulo.id))
+  }
 
-  // Determinar a primeira aula disponível para o botão "Continuar curso"
   const getFirstAvailableLesson = () => {
-    for (const modulo of course.modulos) {
-      for (const aula of modulo.aulas) {
-        if (aula.status === 'disponivel' || aula.status === 'concluida') {
-          return `/trilha/${courseId}/${aula.id}`;
-        }
-      }
-    }
-    // Fallback para a primeira aula do primeiro módulo
-    return `/trilha/${courseId}/${course.modulos[0]?.aulas[0]?.id || 'aula-1'}`;
-  };
+    // Lógica para obter a primeira aula disponível
+    return `/trilha/${courseId}/${course.modulos[0]?.aulas[0]?.id || 'aula-1'}`
+  }
 
   return (
     <SidebarProvider>
@@ -148,7 +136,7 @@ export default function CourseDetailsClient({ user, profile, course, courseId }:
                 <div className="flex gap-2">
                   {accordionValue.length === 0 ? (
                     <button 
-                      onClick={abrirTodosModulos}
+                      onClick={expandirTodosModulos}
                       className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300"
                     >
                       Abrir todos os módulos

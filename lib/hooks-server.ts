@@ -74,7 +74,7 @@ export async function getCoursesData(userId: string, limit: number = 6) {
 /**
  * Função server-side para buscar dados de um curso específico por ID
  */
-export async function getCourseById(courseId: string) {
+export async function getCourseById(courseId: string, userId?: string) {
   try {
     // Buscar curso real do banco de dados
     const course = await getCourseWithModules(courseId)
@@ -86,15 +86,46 @@ export async function getCourseById(courseId: string) {
       }
     }
 
+    // Função para determinar o status do vídeo baseado no progresso
+    const getVideoStatus = (progressVideos: Array<{
+      user_id: string
+      status: string
+      progress_seconds: number
+      completed_at: string | null
+    }>): 'concluida' | 'disponivel' | 'bloqueada' | 'nao_iniciada' => {
+      if (!progressVideos || progressVideos.length === 0) {
+        return 'nao_iniciada'
+      }
+      
+      const userProgress = progressVideos.find(p => p.user_id === userId)
+      if (!userProgress) {
+        return 'nao_iniciada'
+      }
+      
+      switch (userProgress.status) {
+        case 'completed':
+          return 'concluida'
+        case 'in_progress':
+          return 'disponivel'
+        case 'not_started':
+          return 'nao_iniciada'
+        default:
+          return 'nao_iniciada'
+      }
+    }
+
     // Converter dados do banco para o formato esperado pela página
     const courseData = {
       id: course.id,
       titulo: course.title,
       descricao: course.description || 'Descrição não disponível',
       totalVideos: course.modules?.reduce((acc, module) => acc + (module.videos?.length || 0), 0) || 0,
-      concluidos: 0, // Por enquanto fixo, pode ser implementado depois
-      percent: 0, // Por enquanto fixo, pode ser implementado depois
-      duracaoTotal: '0 min', // Por enquanto fixo, pode ser implementado depois
+      concluidos: course.modules?.reduce((acc, module) => 
+        acc + (module.videos?.filter(video => 
+          video.progress_videos?.some(p => p.user_id === userId && p.status === 'completed')
+        ).length || 0), 0) || 0,
+      percent: 0, // Será calculado depois
+      duracaoTotal: '0 min', // Será calculado depois
       categoria: course.categories?.name || 'Sem categoria',
       modulos: course.modules
         ?.sort((a, b) => (a.order || 0) - (b.order || 0)) // Ordenar por order
@@ -108,12 +139,31 @@ export async function getCourseById(courseId: string) {
               id: video.id,
               titulo: video.title, // Agora é obrigatório no banco
               duracao: video.duration ? `${Math.floor(video.duration / 60)}:${(video.duration % 60).toString().padStart(2, '0')}` : '0:00',
-              status: 'disponivel' as const, // Por enquanto fixo, pode ser implementado depois
+              status: getVideoStatus(video.progress_videos || []),
               video_url: video.video_url, // Agora é obrigatório no banco
               thumbnail_url: null, // Não existe no banco real
               description: video.description
             })) || []
         })) || []
+    }
+
+    // Calcular percentual de conclusão
+    if (courseData.totalVideos > 0) {
+      courseData.percent = Math.round((courseData.concluidos / courseData.totalVideos) * 100)
+    }
+
+    // Calcular duração total
+    const totalDurationSeconds = courseData.modulos.reduce((acc, module) => 
+      acc + module.aulas.reduce((acc2, aula) => {
+        const [minutes, seconds] = aula.duracao.split(':').map(Number)
+        return acc2 + (minutes * 60 + seconds)
+      }, 0), 0
+    )
+    
+    if (totalDurationSeconds > 0) {
+      const hours = Math.floor(totalDurationSeconds / 3600)
+      const minutes = Math.floor((totalDurationSeconds % 3600) / 60)
+      courseData.duracaoTotal = hours > 0 ? `${hours}h${minutes}min` : `${minutes}min`
     }
 
     return {
