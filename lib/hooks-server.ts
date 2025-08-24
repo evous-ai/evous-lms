@@ -114,38 +114,55 @@ export async function getCourseById(courseId: string, userId?: string) {
       }
     }
 
+    // Calcular progresso real do curso
+    let totalVideos = 0
+    let videosConcluidos = 0
+
     // Converter dados do banco para o formato esperado pela página
     const courseData = {
       id: course.id,
       titulo: course.title,
       descricao: course.description || 'Descrição não disponível',
-      totalVideos: course.modules?.reduce((acc, module) => acc + (module.videos?.length || 0), 0) || 0,
-      concluidos: course.modules?.reduce((acc, module) => 
-        acc + (module.videos?.filter(video => 
-          video.progress_videos?.some(p => p.user_id === userId && p.status === 'completed')
-        ).length || 0), 0) || 0,
-      percent: 0, // Será calculado depois
-      duracaoTotal: '0 min', // Será calculado depois
+      totalVideos: 0, // Será calculado
+      concluidos: 0, // Será calculado
+      percent: 0, // Será calculado
+      duracaoTotal: '0 min', // Será calculado
       categoria: course.categories?.name || 'Sem categoria',
       modulos: course.modules
         ?.sort((a, b) => (a.order || 0) - (b.order || 0)) // Ordenar por order
-        .map((module) => ({
-          id: module.id,
-          titulo: module.title, // Agora é obrigatório no banco
-          resumo: `${module.videos?.length || 0} vídeos`,
-          aulas: module.videos
+        .map((module) => {
+          const moduleVideos = module.videos
             ?.sort((a, b) => (a.order || 0) - (b.order || 0)) // Ordenar vídeos por order
-            .map((video) => ({
-              id: video.id,
-              titulo: video.title, // Agora é obrigatório no banco
-              duracao: video.duration ? `${Math.floor(video.duration / 60)}:${(video.duration % 60).toString().padStart(2, '0')}` : '0:00',
-              status: getVideoStatus(video.progress_videos || []),
-              video_url: video.video_url, // Agora é obrigatório no banco
-              thumbnail_url: null, // Não existe no banco real
-              description: video.description
-            })) || []
-        })) || []
+            .map((video) => {
+              const status = getVideoStatus(video.progress_videos || [])
+              
+              // Contar vídeos por status
+              totalVideos++
+              if (status === 'concluida') videosConcluidos++
+              
+              return {
+                id: video.id,
+                titulo: video.title, // Agora é obrigatório no banco
+                duracao: video.duration ? `${Math.floor(video.duration / 60)}:${(video.duration % 60).toString().padStart(2, '0')}` : '0:00',
+                status: status,
+                video_url: video.video_url, // Agora é obrigatório no banco
+                thumbnail_url: null, // Não existe no banco real
+                description: video.description
+              }
+            }) || []
+          
+          return {
+            id: module.id,
+            titulo: module.title, // Agora é obrigatório no banco
+            resumo: `${moduleVideos.length} vídeos`,
+            aulas: moduleVideos
+          }
+        }) || []
     }
+
+    // Atualizar contadores com valores reais
+    courseData.totalVideos = totalVideos
+    courseData.concluidos = videosConcluidos
 
     // Calcular percentual de conclusão
     if (courseData.totalVideos > 0) {

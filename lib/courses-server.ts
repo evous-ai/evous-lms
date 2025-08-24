@@ -5,8 +5,8 @@ export interface Course {
   title: string
   description: string | null
   cover_image: string | null
-  level: 'beginner' | 'intermediate' | 'advanced' | null
-  status: 'draft' | 'published' | 'archived'
+  level: string | null
+  status: string
   rating_average: number | null
   created_at: string
   updated_at: string
@@ -44,9 +44,13 @@ export interface Course {
       }[]
     }[]
   }[]
+  progress?: {
+    totalVideos: number
+    videosConcluidos: number
+  }
 }
 
-export interface CourseWithProgress extends Course {
+interface CourseWithProgress extends Omit<Course, 'progress'> {
   progress?: {
     status: 'not_started' | 'in_progress' | 'completed'
     progress_seconds: number
@@ -124,19 +128,39 @@ export async function getLatestCourses(limit: number = 6): Promise<Course[]> {
   }
 
   // Mapear os dados para o formato correto
-  return (courses || []).map(course => ({
-    id: course.id,
-    title: course.title,
-    description: course.description,
-    cover_image: course.cover_image,
-    level: course.level,
-    status: course.status,
-    rating_average: course.rating_average,
-    created_at: course.created_at,
-    updated_at: course.updated_at,
-    categories: Array.isArray(course.category) ? course.category[0] || null : course.category || null,
-    modules: course.modules || []
-  } as Course))
+  return (courses || []).map(course => {
+    // Calcular progresso real do curso
+    let totalVideos = 0
+    let videosConcluidos = 0
+
+    course.modules?.forEach(module => {
+      module.videos?.forEach(video => {
+        totalVideos++
+        if (video.progress_videos && video.progress_videos.length > 0) {
+          const hasCompleted = video.progress_videos.some((p: { status: string }) => p.status === 'completed')
+          if (hasCompleted) videosConcluidos++
+        }
+      })
+    })
+
+    return {
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      cover_image: course.cover_image,
+      level: course.level,
+      status: course.status,
+      rating_average: course.rating_average,
+      created_at: course.created_at,
+      updated_at: course.updated_at,
+      categories: Array.isArray(course.category) ? course.category[0] || null : course.category || null,
+      modules: course.modules || [],
+      progress: {
+        totalVideos,
+        videosConcluidos
+      }
+    } as Course
+  })
 }
 
 /**

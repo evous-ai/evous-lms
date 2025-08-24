@@ -1,45 +1,49 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { Course } from './courses-server'
-import { Treinamento } from './types/dashboard'
+import { Course } from '@/lib/courses-server'
+import { Treinamento } from '@/lib/types/dashboard'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
 /**
- * Converte dados de Course para Treinamento (formato do dashboard)
+ * Converte um objeto Course do Supabase para o formato Treinamento esperado pelo dashboard
  */
 export function convertCourseToTreinamento(course: Course): Treinamento {
-  // Calcular número total de vídeos
-  const totalVideos = course.modules?.reduce((acc, module) => {
-    return acc + (module.videos?.length || 0)
-  }, 0) || 0
+  const totalVideos = course.modules?.reduce((acc, module) => 
+    acc + (module.videos?.length || 0), 0) || 0
   
-  // Determinar status baseado no progresso (por enquanto fixo)
-  const status = 'nao-iniciado' as const
-  
-  // Determinar ação baseada no status
-  const acao = 'Começar' // Por enquanto fixo, pode ser atualizado depois
-  
+  const videosConcluidos = course.progress?.videosConcluidos || 0
+  const percent = course.progress && totalVideos > 0 
+    ? Math.round((videosConcluidos / totalVideos) * 100) 
+    : 0
+
+  // Determinar status baseado no progresso
+  let status: 'concluido' | 'em-andamento' | 'nao-iniciado' = 'nao-iniciado'
+  if (percent === 100 && totalVideos > 0) {
+    status = 'concluido'
+  } else if (percent > 0) {
+    status = 'em-andamento'
+  }
+
   return {
     id: course.id,
     titulo: course.title,
     categoria: course.categories?.name || 'Sem categoria',
-    status,
-    progresso: 0, // Progresso padrão, pode ser atualizado depois
+    status: status,
+    progresso: percent,
     videos: totalVideos,
-    duracao: totalVideos > 0 ? `${totalVideos} vídeos` : '0 vídeos',
-    cor: (course.categories?.color as 'blue' | 'green' | 'purple' | 'orange' | 'pink' | 'indigo') || 'blue',
-    acao,
+    duracao: '0 min', // Será calculado se necessário
+    cor: 'blue' as const, // Cor padrão
+    acao: 'Ver curso',
     acaoVariant: 'default' as const,
     acaoHref: `/trilha/${course.id}`
   }
 }
 
 /**
- * Trunca texto para o número máximo de caracteres especificado
- * e adiciona três pontinhos (...) quando exceder o limite
+ * Trunca texto para um comprimento máximo especificado
  */
 export function truncateText(text: string, maxLength: number = 150): string {
   if (!text || text.length <= maxLength) {

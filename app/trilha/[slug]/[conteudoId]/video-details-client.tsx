@@ -12,7 +12,7 @@ import { Star } from 'lucide-react';
 import { ProgressSidebar } from '@/components/lesson/ProgressSidebar';
 import { ContactSupportModal } from '@/components/modals/contact-support-modal';
 import { Home, MessageCircle, BookOpen } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -74,9 +74,18 @@ export default function VideoDetailsClient({
   const [isMobile, setIsMobile] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [videoProgress, setVideoProgress] = useState<{
+    status: 'not_started' | 'in_progress' | 'completed';
+    progressSeconds: number;
+  } | null>(null);
+  const [isVideoStarted, setIsVideoStarted] = useState(false);
+  const [isSavingProgress, setIsSavingProgress] = useState(false);
+  const [isCompletingLesson, setIsCompletingLesson] = useState(false);
+  const [updatedCourse, setUpdatedCourse] = useState(course);
+  const progressUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Calcular informações de navegação
-  const allVideos = course.modulos.flatMap(modulo => 
+  const allVideos = updatedCourse.modulos.flatMap(modulo => 
     modulo.aulas.map(aula => ({ ...aula, moduleId: modulo.id }))
   );
   const currentVideoIndex = allVideos.findIndex(v => v.id === videoId);
@@ -109,6 +118,117 @@ export default function VideoDetailsClient({
     };
   };
 
+  // Função para atualizar o status do vídeo no curso para o sidebar
+  const updateVideoStatusInCourse = (videoId: string, newStatus: 'concluida' | 'disponivel' | 'nao_iniciada') => {
+    setUpdatedCourse(prevCourse => {
+      const newCourse = { ...prevCourse };
+      
+      // Encontrar e atualizar o status do vídeo
+      newCourse.modulos = newCourse.modulos.map(modulo => ({
+        ...modulo,
+        aulas: modulo.aulas.map(aula => 
+          aula.id === videoId 
+            ? { ...aula, status: newStatus }
+            : aula
+        )
+      }));
+      
+      return newCourse;
+    });
+  };
+
+  // Função para salvar progresso do vídeo com debounce
+  const saveVideoProgress = useCallback(async (status: 'not_started' | 'in_progress' | 'completed', progressSeconds: number = 0) => {
+    // Cancelar timeout anterior se existir
+    if (progressUpdateTimeoutRef.current) {
+      clearTimeout(progressUpdateTimeoutRef.current);
+    }
+
+    // Para status 'in_progress', usar debounce de 2 segundos
+    if (status === 'in_progress') {
+      progressUpdateTimeoutRef.current = setTimeout(async () => {
+        await performSaveProgress(status, progressSeconds);
+      }, 2000);
+    } else {
+      // Para outros status, salvar imediatamente
+      await performSaveProgress(status, progressSeconds);
+    }
+
+    // Função para executar o salvamento real do progresso
+    async function performSaveProgress(status: 'not_started' | 'in_progress' | 'completed', progressSeconds: number = 0) {
+      if (isSavingProgress) return; // Evitar múltiplas chamadas simultâneas
+      
+      try {
+        setIsSavingProgress(true);
+        
+        // Garantir que progressSeconds seja um número inteiro
+        const finalProgressSeconds = Math.floor(progressSeconds);
+        
+        const response = await fetch('/api/video-progress', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            videoId,
+            status,
+            progressSeconds: finalProgressSeconds
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setVideoProgress({
+            status,
+            progressSeconds: finalProgressSeconds
+          });
+          
+          // Se o vídeo foi iniciado, mostrar feedback
+          if (status === 'in_progress' && !isVideoStarted) {
+            setIsVideoStarted(true);
+            console.log('Curso iniciado com sucesso!');
+            // Atualizar o status do vídeo no curso para o sidebar
+            updateVideoStatusInCourse(videoId, 'disponivel');
+          }
+          
+          // Se o vídeo foi concluído, mostrar feedback e atualizar sidebar
+          if (status === 'completed') {
+            console.log('Vídeo concluído com sucesso!');
+            // Atualizar o status do vídeo no curso para o sidebar
+            updateVideoStatusInCourse(videoId, 'concluida');
+          }
+          
+          return data;
+        } else {
+          console.error('Erro ao salvar progresso:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Erro ao salvar progresso:', error);
+      } finally {
+        setIsSavingProgress(false);
+      }
+    }
+  }, [videoId, isSavingProgress, isVideoStarted]);
+
+  // Função para buscar progresso atual do vídeo
+  const fetchVideoProgress = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/video-progress?videoId=${videoId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.progress) {
+          setVideoProgress({
+            status: data.progress.status,
+            progressSeconds: data.progress.progress_seconds
+          });
+          setIsVideoStarted(data.progress.status === 'in_progress' || data.progress.status === 'completed');
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar progresso:', error);
+    }
+  }, [videoId]);
+
   // Detectar se é mobile e ajustar estado inicial do sidebar
   useEffect(() => {
     const checkMobile = () => {
@@ -139,12 +259,28 @@ export default function VideoDetailsClient({
     setIsPageLoaded(true);
   }, []);
 
+  // Buscar progresso inicial do vídeo
+  useEffect(() => {
+    if (isPageLoaded) {
+      fetchVideoProgress();
+    }
+  }, [isPageLoaded, fetchVideoProgress]);
+
   // Salvar estado do sidebar no localStorage quando mudar
   useEffect(() => {
     if (isPageLoaded && !isMobile) {
       localStorage.setItem('sidebarOpen', isSidebarOpen.toString());
     }
   }, [isSidebarOpen, isPageLoaded, isMobile]);
+
+  // Cleanup do timeout quando componente for desmontado
+  useEffect(() => {
+    return () => {
+      if (progressUpdateTimeoutRef.current) {
+        clearTimeout(progressUpdateTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Função para navegar para o próximo vídeo preservando o estado do sidebar
   const navigateToNextVideo = () => {
@@ -217,6 +353,44 @@ export default function VideoDetailsClient({
                     <div className="w-full aspect-video rounded-xl overflow-hidden bg-black">
                       {video.video_url ? (
                         <video
+                          ref={(videoRef) => {
+                            if (videoRef) {
+                              // Adicionar eventos ao vídeo apenas uma vez
+                              const handlePlay = () => {
+                                if (!isVideoStarted) {
+                                  saveVideoProgress('in_progress', 0);
+                                }
+                              };
+                              
+                              const handleTimeUpdate = () => {
+                                if (videoRef.currentTime > 0) {
+                                  // Enviar o tempo atual em segundos
+                                  const currentTimeSeconds = Math.floor(videoRef.currentTime);
+                                  saveVideoProgress('in_progress', currentTimeSeconds);
+                                }
+                              };
+                              
+                              const handleEnded = () => {
+                                // Quando o vídeo termina, enviar o tempo total
+                                if (videoRef.duration) {
+                                  const totalDurationSeconds = Math.floor(videoRef.duration);
+                                  saveVideoProgress('completed', totalDurationSeconds);
+                                } else {
+                                  saveVideoProgress('completed', 0);
+                                }
+                              };
+
+                              // Remover listeners anteriores se existirem
+                              videoRef.removeEventListener('play', handlePlay);
+                              videoRef.removeEventListener('timeupdate', handleTimeUpdate);
+                              videoRef.removeEventListener('ended', handleEnded);
+
+                              // Adicionar novos listeners
+                              videoRef.addEventListener('play', handlePlay);
+                              videoRef.addEventListener('timeupdate', handleTimeUpdate);
+                              videoRef.addEventListener('ended', handleEnded);
+                            }
+                          }}
                           className="h-full w-full"
                           controls
                           playsInline
@@ -231,6 +405,37 @@ export default function VideoDetailsClient({
                         </div>
                       )}
                     </div>
+                    
+                    {/* Indicador de status do vídeo */}
+                    {videoProgress && (
+                      <div className="mt-3 flex items-center gap-2 text-sm">
+                        <div className={`w-3 h-3 rounded-full ${
+                          videoProgress.status === 'completed' ? 'bg-green-500' :
+                          videoProgress.status === 'in_progress' ? 'bg-blue-500' :
+                          'bg-gray-400'
+                        }`}></div>
+                        <span className="text-muted-foreground">
+                          {videoProgress.status === 'completed' ? 'Vídeo concluído' :
+                           videoProgress.status === 'in_progress' ? 'Em progresso' :
+                           'Não iniciado'}
+                        </span>
+                        {videoProgress.status === 'in_progress' && videoProgress.progressSeconds > 0 && (
+                          <span className="text-muted-foreground">
+                            • {Math.floor(videoProgress.progressSeconds / 60)}:{(videoProgress.progressSeconds % 60).toString().padStart(2, '0')}
+                          </span>
+                        )}
+                        {videoProgress.status === 'completed' && (
+                          <span className="text-muted-foreground">
+                            • Concluído em {Math.floor(videoProgress.progressSeconds / 60)}:{(videoProgress.progressSeconds % 60).toString().padStart(2, '0')}
+                          </span>
+                        )}
+                        {isSavingProgress && (
+                          <span className="text-muted-foreground text-xs">
+                            Salvando...
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </section>
 
                   {/* Rating */}
@@ -294,7 +499,7 @@ export default function VideoDetailsClient({
                         <Button 
                           variant="outline" 
                           onClick={navigateToNextVideo}
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-2 cursor-pointer"
                         >
                           Próxima aula →
                         </Button>
@@ -306,9 +511,70 @@ export default function VideoDetailsClient({
 
                   {/* Footer local - Completar Aula */}
                   <section className="mt-8 pt-4 border-t border-transparent flex justify-end">
-                    <Button size="lg" className="bg-emerald-700 hover:bg-emerald-800 text-white w-full md:w-auto">
-                      Completar Aula
-                    </Button>
+                    {videoProgress?.status === 'completed' ? (
+                      // Botão quando a aula está concluída
+                      <Button 
+                        size="lg" 
+                        variant="outline"
+                        className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200 w-full md:w-auto cursor-pointer"
+                        disabled
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          Aula Concluída
+                        </div>
+                      </Button>
+                    ) : (
+                      // Botão para completar a aula
+                      <Button 
+                        size="lg" 
+                        className="bg-emerald-700 hover:bg-emerald-800 text-white w-full md:w-auto cursor-pointer"
+                        onClick={async () => {
+                          try {
+                            setIsCompletingLesson(true);
+                            
+                            // Buscar o elemento de vídeo para capturar o tempo atual
+                            const videoElement = document.querySelector('video') as HTMLVideoElement;
+                            let progressSeconds = 0;
+                            
+                            if (videoElement) {
+                              // Se o vídeo tem duração, usar o tempo atual ou duração total
+                              if (videoElement.duration) {
+                                progressSeconds = Math.max(
+                                  Math.floor(videoElement.currentTime),
+                                  Math.floor(videoElement.duration * 0.8) // Mínimo 80% da duração
+                                );
+                              }
+                            }
+                            
+                            // Marcar vídeo como concluído com o progresso capturado
+                            await saveVideoProgress('completed', progressSeconds);
+                            
+                            // Mostrar feedback visual
+                            console.log('Aula marcada como concluída manualmente!');
+                          } catch (error) {
+                            console.error('Erro ao marcar aula como concluída:', error);
+                          } finally {
+                            setIsCompletingLesson(false);
+                          }
+                        }}
+                        disabled={isCompletingLesson}
+                      >
+                        <div className="flex items-center gap-2">
+                          {isCompletingLesson ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              Completando...
+                            </>
+                          ) : (
+                            <>
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                              Completar Aula
+                            </>
+                          )}
+                        </div>
+                      </Button>
+                    )}
                   </section>
 
                   {/* Footer - Bloco de Suporte */}
@@ -332,7 +598,7 @@ export default function VideoDetailsClient({
                       
                       <Button
                         onClick={() => setIsContactModalOpen(true)}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
                         size="lg"
                       >
                         <MessageCircle className="h-4 w-4 mr-2" />
@@ -358,7 +624,7 @@ export default function VideoDetailsClient({
                 isOpen={isSidebarOpen} 
                 onToggle={() => setIsSidebarOpen((v) => !v)}
                 mode={sidebarMode}
-                courseData={convertCourseForSidebar(course)}
+                courseData={convertCourseForSidebar(updatedCourse)}
                 courseId={courseId}
               />
             </div>

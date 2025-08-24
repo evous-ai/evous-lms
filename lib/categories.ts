@@ -5,6 +5,7 @@ export interface Category {
   company_id: string
   color: string
   variant: string
+  slug?: string | null
 }
 
 // Função para buscar categorias no client-side
