@@ -12,6 +12,7 @@ import { Search, X, Home } from "lucide-react"
 import { useState, useMemo } from "react"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { TrainingCard } from "@/components/TrainingCard"
+import { Treinamento } from "@/lib/types/dashboard"
 
 // Props do componente
 interface MeusTreinamentosClientProps {
@@ -23,116 +24,20 @@ interface MeusTreinamentosClientProps {
     full_name?: string | null
     country?: string | null
   } | null
+  treinamentos: Treinamento[]
 }
 
-// Dados dos treinamentos (igual ao dashboard)
-const treinamentos: Array<{
-  id: string
-  titulo: string
-  categoria: string
-  status: "concluido" | "em-andamento" | "nao-iniciado"
-  progresso: number
-  videos: number
-  duracao: string
-  cor: "blue" | "green" | "purple" | "orange" | "pink" | "indigo"
-  acao: string
-  acaoVariant: "default" | "outline"
-  acaoHref?: string
-}> = [
-  {
-    id: "rebranding",
-    titulo: "Rebranding",
-    categoria: "Identidade Visual",
-    status: "concluido",
-    progresso: 100,
-    videos: 1,
-    duracao: "15min",
-    cor: "blue",
-    acao: "Revisar",
-    acaoVariant: "outline" as const,
-    acaoHref: "/trilha/trajetoria-vibra"
-  },
-  {
-    id: "trajetoria-vibra",
-    titulo: "Trajetória Vibra",
-    categoria: "Estratégia Comercial",
-    status: "em-andamento",
-    progresso: 45,
-    videos: 8,
-    duracao: "2h30min",
-    cor: "green",
-    acao: "Continuar",
-    acaoVariant: "default" as const,
-    acaoHref: "/trilha/trajetoria-vibra"
-  },
-  {
-    id: "mitos-verdades",
-    titulo: "Mitos e Verdades",
-    categoria: "Produtos & Combustíveis",
-    status: "nao-iniciado",
-    progresso: 0,
-    videos: 2,
-    duracao: "45min",
-    cor: "purple",
-    acao: "Começar",
-    acaoVariant: "default" as const,
-    acaoHref: "/trilha/trajetoria-vibra"
-  },
-  {
-    id: "lentes-digitais",
-    titulo: "Lentes Digitais",
-    categoria: "Tecnologia",
-    status: "nao-iniciado",
-    progresso: 0,
-    videos: 3,
-    duracao: "1h15min",
-    cor: "orange",
-    acao: "Começar",
-    acaoVariant: "default" as const,
-    acaoHref: "/trilha/trajetoria-vibra"
-  },
-  {
-    id: "presbiopia",
-    titulo: "Presbiopia",
-    categoria: "Tratamento",
-    status: "em-andamento",
-    progresso: 25,
-    videos: 4,
-    duracao: "1h45min",
-    cor: "pink",
-    acao: "Continuar",
-    acaoVariant: "default" as const,
-    acaoHref: "/trilha/trajetoria-vibra"
-  },
-  {
-    id: "hipermetropia",
-    titulo: "Hipermetropia",
-    categoria: "Patologia",
-    status: "nao-iniciado",
-    progresso: 0,
-    videos: 2,
-    duracao: "50min",
-    cor: "indigo",
-    acao: "Começar",
-    acaoVariant: "default" as const,
-    acaoHref: "/trilha/trajetoria-vibra"
-  }
-]
+export default function MeusTreinamentosClient({ user, profile, treinamentos }: MeusTreinamentosClientProps) {
+  // ✅ Usar dados reais em vez de mockados
+  const treinamentosData = treinamentos || []
 
-// Categorias disponíveis
-const categorias = ["Todas", "Identidade Visual", "Estratégia Comercial", "Produtos & Combustíveis", "Tecnologia", "Tratamento", "Patologia"]
-
-// Status disponíveis
-const status = ["Todos", "concluido", "em-andamento", "nao-iniciado"]
-
-export default function MeusTreinamentosClient({ user, profile }: MeusTreinamentosClientProps) {
   const [busca, setBusca] = useState("")
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas")
   const [statusFiltro, setStatusFiltro] = useState("Todos")
 
   // Filtrar treinamentos
   const treinamentosFiltrados = useMemo(() => {
-    return treinamentos.filter(treinamento => {
+    return treinamentosData.filter(treinamento => {
       const matchBusca = treinamento.titulo.toLowerCase().includes(busca.toLowerCase()) ||
                         treinamento.categoria.toLowerCase().includes(busca.toLowerCase())
       const matchCategoria = categoriaFiltro === "Todas" || treinamento.categoria === categoriaFiltro
@@ -199,7 +104,7 @@ export default function MeusTreinamentosClient({ user, profile }: MeusTreinament
                 {/* Filtro de categoria */}
                 <div className="w-full sm:w-48">
                   <Combobox
-                    options={categorias.map(cat => ({ value: cat, label: cat }))}
+                    options={["Todas", "Identidade Visual", "Estratégia Comercial", "Produtos & Combustíveis", "Tecnologia", "Tratamento", "Patologia"].map(cat => ({ value: cat, label: cat }))}
                     value={categoriaFiltro}
                     onValueChange={setCategoriaFiltro}
                     placeholder="Categoria"
@@ -211,7 +116,7 @@ export default function MeusTreinamentosClient({ user, profile }: MeusTreinament
                 {/* Filtro de status */}
                 <div className="w-full sm:w-48">
                   <Combobox
-                    options={status.map(st => ({ value: st, label: st }))}
+                    options={["Todos", "concluido", "em-andamento", "nao-iniciado"].map(st => ({ value: st, label: st }))}
                     value={statusFiltro}
                     onValueChange={setStatusFiltro}
                     placeholder="Status"
@@ -245,8 +150,8 @@ export default function MeusTreinamentosClient({ user, profile }: MeusTreinament
                   cor={treinamento.cor}
                   acao={treinamento.acao}
                   acaoVariant={treinamento.acaoVariant}
-                  acaoHref="/trilha/trajetoria-vibra"
-                  href="/trilha/trajetoria-vibra"
+                  acaoHref={treinamento.acaoHref}
+                  href={treinamento.acaoHref}
                 />
               ))}
             </div>

@@ -138,7 +138,9 @@ export default function DashboardClient({ user, profile, initialData }: Dashboar
                     width={160}
                     height={40}
                     className="h-10 w-auto object-contain"
-                    style={{ width: "auto", height: "auto" }}
+                    priority={false}
+                    loading="lazy"
+                    sizes="160px"
                   />
                 </div>
               </div>

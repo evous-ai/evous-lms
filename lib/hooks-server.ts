@@ -7,10 +7,9 @@ import { getLatestCourses, getCategoryProgress, getCourseWithModules } from './c
  */
 export async function getDashboardData(userId: string, companyId: string) {
   try {
-    // Buscar dados em paralelo para melhor performance
     const [categorias, cursos, progressoCategorias] = await Promise.all([
       getCategoriesByCompany(companyId),
-      getLatestCourses(6),
+      getLatestCourses(6, userId), // ✅ Dashboard: apenas 6 últimos cursos
       getCategoryProgress(userId, 10)
     ])
 
@@ -54,9 +53,10 @@ export async function getCompanyData(companyId: string) {
 /**
  * Função server-side para buscar cursos com filtros
  */
-export async function getCoursesData(userId: string, limit: number = 6) {
+export async function getCoursesData(userId: string, limit?: number) {
   try {
-    const cursos = await getLatestCourses(limit)
+    // ✅ Se não especificar limite, buscar todos os cursos para meus-treinamentos
+    const cursos = await getLatestCourses(limit || 1000, userId) // Passar userId para calcular progresso correto
     
     return {
       cursos: cursos || [],
@@ -66,7 +66,7 @@ export async function getCoursesData(userId: string, limit: number = 6) {
     console.error('Erro ao buscar cursos:', error)
     return {
       cursos: [],
-      error: 'Erro ao carregar cursos'
+      error: 'Erro ao buscar cursos'
     }
   }
 }
@@ -77,7 +77,7 @@ export async function getCoursesData(userId: string, limit: number = 6) {
 export async function getCourseById(courseId: string, userId?: string) {
   try {
     // Buscar curso real do banco de dados
-    const course = await getCourseWithModules(courseId)
+    const course = await getCourseWithModules(courseId, userId) // ✅ Passar userId
     
     if (!course) {
       return {
@@ -114,19 +114,51 @@ export async function getCourseById(courseId: string, userId?: string) {
       }
     }
 
-    // Calcular progresso real do curso
-    let totalVideos = 0
-    let videosConcluidos = 0
+    // ✅ Usar progresso baseado em tempo se disponível
+    let totalVideos = course.progress?.totalVideos || 0
+    let videosConcluidos = course.progress?.videosConcluidos || 0
+    let percent = course.progress?.progressPercentage || 0
+    let duracaoTotal = '0 min'
+
+    // Se não temos progresso calculado, calcular manualmente
+    if (!course.progress || course.progress.totalVideos === 0) {
+      totalVideos = 0
+      videosConcluidos = 0
+      
+      // Calcular progresso real do curso
+      course.modules?.forEach(module => {
+        module.videos?.forEach(video => {
+          totalVideos++
+          if (video.progress_videos && video.progress_videos.length > 0) {
+            const hasCompleted = video.progress_videos.some((p: { status: string }) => p.status === 'completed')
+            if (hasCompleted) videosConcluidos++
+          }
+        })
+      })
+
+      // Calcular percentual de conclusão
+      if (totalVideos > 0) {
+        percent = Math.round((videosConcluidos / totalVideos) * 100)
+      }
+    }
+
+    // ✅ Usar duração total calculada se disponível
+    if (course.progress?.totalDuration && course.progress.totalDuration > 0) {
+      const totalSeconds = course.progress.totalDuration
+      const hours = Math.floor(totalSeconds / 3600)
+      const minutes = Math.floor((totalSeconds % 3600) / 60)
+      duracaoTotal = hours > 0 ? `${hours}h${minutes}min` : `${minutes}min`
+    }
 
     // Converter dados do banco para o formato esperado pela página
     const courseData = {
       id: course.id,
       titulo: course.title,
       descricao: course.description || 'Descrição não disponível',
-      totalVideos: 0, // Será calculado
-      concluidos: 0, // Será calculado
-      percent: 0, // Será calculado
-      duracaoTotal: '0 min', // Será calculado
+      totalVideos: totalVideos,
+      concluidos: videosConcluidos,
+      percent: percent,
+      duracaoTotal: duracaoTotal,
       categoria: course.categories?.name || 'Sem categoria',
       modulos: course.modules
         ?.sort((a, b) => (a.order || 0) - (b.order || 0)) // Ordenar por order
@@ -135,10 +167,6 @@ export async function getCourseById(courseId: string, userId?: string) {
             ?.sort((a, b) => (a.order || 0) - (b.order || 0)) // Ordenar vídeos por order
             .map((video) => {
               const status = getVideoStatus(video.progress_videos || [])
-              
-              // Contar vídeos por status
-              totalVideos++
-              if (status === 'concluida') videosConcluidos++
               
               return {
                 id: video.id,
@@ -160,28 +188,21 @@ export async function getCourseById(courseId: string, userId?: string) {
         }) || []
     }
 
-    // Atualizar contadores com valores reais
-    courseData.totalVideos = totalVideos
-    courseData.concluidos = videosConcluidos
-
-    // Calcular percentual de conclusão
-    if (courseData.totalVideos > 0) {
-      courseData.percent = Math.round((courseData.concluidos / courseData.totalVideos) * 100)
-    }
-
-    // Calcular duração total
-    const totalDurationSeconds = courseData.modulos.reduce((acc, module) => 
-      acc + module.aulas.reduce((acc2, aula) => {
-        // Converter duração do formato "MM:SS" para segundos
-        const [minutes, seconds] = aula.duracao.split(':').map(Number)
-        return acc2 + (minutes * 60 + seconds)
-      }, 0), 0
-    )
-    
-    if (totalDurationSeconds > 0) {
-      const hours = Math.floor(totalDurationSeconds / 3600)
-      const minutes = Math.floor((totalDurationSeconds % 3600) / 60)
-      courseData.duracaoTotal = hours > 0 ? `${hours}h${minutes}min` : `${minutes}min`
+    // ✅ Calcular duração total se não foi calculada anteriormente
+    if (duracaoTotal === '0 min') {
+      const totalDurationSeconds = courseData.modulos.reduce((acc, module) => 
+        acc + module.aulas.reduce((acc2, aula) => {
+          // Converter duração do formato "MM:SS" para segundos
+          const [minutes, seconds] = aula.duracao.split(':').map(Number)
+          return acc2 + (minutes * 60 + seconds)
+        }, 0), 0
+      )
+      
+      if (totalDurationSeconds > 0) {
+        const hours = Math.floor(totalDurationSeconds / 3600)
+        const minutes = Math.floor((totalDurationSeconds % 3600) / 60)
+        courseData.duracaoTotal = hours > 0 ? `${hours}h${minutes}min` : `${minutes}min`
+      }
     }
 
     return {

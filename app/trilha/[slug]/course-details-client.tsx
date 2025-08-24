@@ -70,9 +70,86 @@ export default function CourseDetailsClient({ user, profile, course, courseId }:
   }
 
   const getFirstAvailableLesson = () => {
-    // Lógica para obter a primeira aula disponível
+    // ✅ Lógica para obter a primeira aula disponível baseada no progresso
+    if (course.concluidos > 0 && course.percent < 100) {
+      // Se há progresso mas não está completo, encontrar a primeira aula não completada
+      for (const modulo of course.modulos) {
+        for (const aula of modulo.aulas) {
+          if (aula.status !== 'concluida') {
+            return `/trilha/${courseId}/${aula.id}`
+          }
+        }
+      }
+    }
+    
+    // Fallback: primeira aula do primeiro módulo
     return `/trilha/${courseId}/${course.modulos[0]?.aulas[0]?.id || 'aula-1'}`
   }
+
+  // ✅ Função para determinar o label e comportamento do botão baseado no progresso
+  const getButtonConfig = () => {
+    // ✅ Verificar se o curso está completo (100% ou todos os módulos completados)
+    const isCourseCompleted = course.percent === 100 || 
+      course.modulos.every(modulo => 
+        modulo.aulas.every(aula => aula.status === 'concluida')
+      )
+    
+    // ✅ Verificar se há progresso (vídeos concluídos, percent > 0, ou módulos em andamento)
+    const hasProgress = course.concluidos > 0 || 
+      course.percent > 0 ||
+      course.modulos.some(modulo => 
+        modulo.aulas.some(aula => aula.status === 'concluida')
+      )
+    
+    // 🔍 DEBUG: Log para verificar a lógica
+    console.log('🔍 DEBUG - getButtonConfig:', {
+      courseId: course.id,
+      courseTitle: course.titulo,
+      percent: course.percent,
+      concluidos: course.concluidos,
+      totalVideos: course.totalVideos,
+      isCourseCompleted,
+      hasProgress
+    })
+    
+    if (isCourseCompleted) {
+      return {
+        label: 'Revisar curso',
+        variant: 'outline' as const,
+        href: getFirstAvailableLesson(),
+        icon: <Play className="h-5 w-5" />,
+        description: 'Curso concluído com sucesso!'
+      }
+    } else if (hasProgress) {
+      // ✅ Melhorar descrição para mostrar progresso baseado em tempo
+      let description = ''
+      if (course.concluidos > 0) {
+        description = `Continue de onde parou (${course.concluidos}/${course.totalVideos} vídeos)`
+      } else if (course.percent > 0) {
+        description = `Continue de onde parou (${course.percent}% de progresso)`
+      } else {
+        description = 'Continue de onde parou'
+      }
+      
+      return {
+        label: 'Continuar curso',
+        variant: 'default' as const,
+        href: getFirstAvailableLesson(),
+        icon: <Play className="h-5 w-5" />,
+        description: description
+      }
+    } else {
+      return {
+        label: 'Começar curso',
+        variant: 'default' as const,
+        href: getFirstAvailableLesson(),
+        icon: <Play className="h-5 w-5" />,
+        description: 'Inicie sua jornada de aprendizado'
+      }
+    }
+  }
+
+  const buttonConfig = getButtonConfig()
 
   return (
     <SidebarProvider>
@@ -116,14 +193,24 @@ export default function CourseDetailsClient({ user, profile, course, courseId }:
               <div className="flex flex-col gap-3 min-w-fit justify-center">
                 <Button 
                   size="lg"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 text-base font-semibold transition-all duration-200"
+                  variant={buttonConfig.variant}
+                  className={`${
+                    buttonConfig.variant === 'default' 
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
+                      : 'border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30'
+                  } px-8 py-3 text-base font-semibold transition-all duration-200`}
                   asChild
                 >
-                  <Link href={getFirstAvailableLesson()} className="flex items-center gap-2">
-                    <Play className="h-5 w-5" />
-                    {course.concluidos > 0 ? 'Continuar curso' : 'Começar curso'}
+                  <Link href={buttonConfig.href} className="flex items-center gap-2">
+                    {buttonConfig.icon}
+                    {buttonConfig.label}
                   </Link>
                 </Button>
+                
+                {/* ✅ Descrição do botão baseada no progresso */}
+                <p className="text-sm text-muted-foreground text-center">
+                  {buttonConfig.description}
+                </p>
               </div>
             </div>
           </Card>
