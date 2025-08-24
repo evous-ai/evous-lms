@@ -63,7 +63,11 @@ const curso = {
 };
 
 export default function TrajetoriaVibraClient({ user, profile }: TrajetoriaVibraClientProps) {
-  const [accordionValue, setAccordionValue] = useState<string[]>(['m1', 'm2']);
+  // Estado para controlar quais módulos estão expandidos
+  const [accordionValue, setAccordionValue] = useState<string[]>(() => {
+    // Inicializar todos os módulos como expandidos
+    return curso.modulos.map(modulo => modulo.id)
+  })
 
   const fecharTodosModulos = () => {
     setAccordionValue([]);

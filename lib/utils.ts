@@ -36,3 +36,14 @@ export function convertCourseToTreinamento(course: Course): Treinamento {
     acaoHref: `/trilha/${course.id}`
   }
 }
+
+/**
+ * Trunca texto para o número máximo de caracteres especificado
+ * e adiciona três pontinhos (...) quando exceder o limite
+ */
+export function truncateText(text: string, maxLength: number = 150): string {
+  if (!text || text.length <= maxLength) {
+    return text
+  }
+  return `${text.substring(0, maxLength)}...`
+}

@@ -96,17 +96,24 @@ export async function getCourseById(courseId: string) {
       percent: 0, // Por enquanto fixo, pode ser implementado depois
       duracaoTotal: '0 min', // Por enquanto fixo, pode ser implementado depois
       categoria: course.categories?.name || 'Sem categoria',
-      modulos: course.modules?.map((module, moduleIndex) => ({
-        id: `m${moduleIndex + 1}`,
-        titulo: `Módulo ${moduleIndex + 1}`, // Por enquanto genérico, pode ser implementado depois
-        resumo: `${module.videos?.length || 0} vídeos`,
-        aulas: module.videos?.map((video, videoIndex) => ({
-          id: video.id,
-          titulo: `Aula ${videoIndex + 1}`, // Por enquanto genérico, pode ser implementado depois
-          duracao: video.duration ? `${Math.floor(video.duration / 60)}:${(video.duration % 60).toString().padStart(2, '0')}` : '0:00',
-          status: 'disponivel' as const // Por enquanto fixo, pode ser implementado depois
+      modulos: course.modules
+        ?.sort((a, b) => (a.order || 0) - (b.order || 0)) // Ordenar por order
+        .map((module) => ({
+          id: module.id,
+          titulo: module.title, // Agora é obrigatório no banco
+          resumo: `${module.videos?.length || 0} vídeos`,
+          aulas: module.videos
+            ?.sort((a, b) => (a.order || 0) - (b.order || 0)) // Ordenar vídeos por order
+            .map((video) => ({
+              id: video.id,
+              titulo: video.title, // Agora é obrigatório no banco
+              duracao: video.duration ? `${Math.floor(video.duration / 60)}:${(video.duration % 60).toString().padStart(2, '0')}` : '0:00',
+              status: 'disponivel' as const, // Por enquanto fixo, pode ser implementado depois
+              video_url: video.video_url, // Agora é obrigatório no banco
+              thumbnail_url: null, // Não existe no banco real
+              description: video.description
+            })) || []
         })) || []
-      })) || []
     }
 
     return {

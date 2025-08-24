@@ -8,12 +8,13 @@ import {
 } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 import { Play, Clock, Home } from 'lucide-react';
 import { useState } from 'react';
 import { CourseModulesList } from '@/components/course';
+import { truncateText } from '@/lib/utils';
 
 // Interface para os dados do curso
 interface Aula {
@@ -21,6 +22,8 @@ interface Aula {
   titulo: string;
   duracao: string;
   status: 'concluida' | 'disponivel' | 'bloqueada' | 'nao_iniciada';
+  video_url?: string | null;
+  description?: string | null;
 }
 
 interface Modulo {
@@ -56,7 +59,11 @@ interface CourseDetailsClientProps {
 }
 
 export default function CourseDetailsClient({ user, profile, course, courseId }: CourseDetailsClientProps) {
-  const [accordionValue, setAccordionValue] = useState<string[]>(['m1', 'm2']);
+  // Estado para controlar quais módulos estão expandidos
+  const [accordionValue, setAccordionValue] = useState<string[]>(() => {
+    // Inicializar todos os módulos como expandidos
+    return course.modulos.map(modulo => modulo.id)
+  })
 
   const fecharTodosModulos = () => {
     setAccordionValue([]);
@@ -113,7 +120,9 @@ export default function CourseDetailsClient({ user, profile, course, courseId }:
                   </div>
                 </div>
                 <h1 className="text-4xl font-bold text-foreground leading-tight">{course.titulo}</h1>
-                <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed">{course.descricao}</p>
+                <CardDescription className="text-base text-muted-foreground">
+                  {truncateText(course.descricao, 150)}
+                </CardDescription>
               </div>
               
               <div className="flex flex-col gap-3 min-w-fit justify-center">

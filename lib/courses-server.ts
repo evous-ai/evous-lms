@@ -19,9 +19,23 @@ export interface Course {
   } | null
   modules?: {
     id: string
+    title: string
+    description: string | null
+    order: number | null
+    created_at: string
+    updated_at: string
     videos: {
       id: string
+      title: string
+      description: string | null
       duration: number
+      video_url: string
+      weight: number
+      order: number | null
+      rating_video: number
+      is_preview: boolean
+      created_at: string
+      updated_at: string
       progress_videos: {
         user_id: string
         status: string
@@ -274,9 +288,23 @@ export async function getCourseWithModules(courseId: string): Promise<Course | n
       ),
       modules(
         id,
+        title,
+        description,
+        order,
+        created_at,
+        updated_at,
         videos(
           id,
+          title,
+          description,
           duration,
+          video_url,
+          weight,
+          order,
+          rating_video,
+          is_preview,
+          created_at,
+          updated_at,
           progress_videos(
             user_id,
             status,

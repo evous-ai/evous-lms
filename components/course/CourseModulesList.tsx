@@ -8,12 +8,15 @@ import {
   ChevronUp,
   ChevronDown
 } from 'lucide-react';
+import { truncateText } from '@/lib/utils';
 
 interface Aula {
   id: string;
   titulo: string;
   duracao: string;
   status: 'concluida' | 'disponivel' | 'bloqueada' | 'nao_iniciada';
+  video_url?: string | null;
+  description?: string | null;
 }
 
 interface Modulo {
@@ -31,18 +34,18 @@ interface CourseModulesListProps {
   courseId?: string; // Alterado de courseSlug para courseId
 }
 
-export function CourseModulesList({ 
-  modulos, 
-  onModuleToggle,
-  expandedModules: externalExpandedModules,
-  className = '',
-  courseId = '550e8400-e29b-41d4-a716-446655440000' // Valor padrão para compatibilidade (Trajetória Vibra)
+export function CourseModulesList({
+  modulos, onModuleToggle, expandedModules: externalExpandedModules,
+  className = '', courseId = '550e8400-e29b-41d4-a716-446655440000' // Default UUID
 }: CourseModulesListProps) {
-  // Estado interno para controle de módulos expandidos
-  const [internalExpandedModules, setInternalExpandedModules] = useState<string[]>(['m1']);
-  
-  // Usa estado externo se fornecido, senão usa interno
-  const expandedModules = externalExpandedModules || internalExpandedModules;
+  // Estado local para controlar expansão dos módulos
+  const [internalExpandedModules, setInternalExpandedModules] = useState<string[]>(() => {
+    // Inicializar todos os módulos como expandidos por padrão
+    return modulos.map(modulo => modulo.id)
+  })
+
+  // Usar módulos expandidos externos se fornecidos, senão usar os internos
+  const expandedModules = externalExpandedModules || internalExpandedModules
 
   const toggleModule = (moduleId: string) => {
     if (onModuleToggle) {
@@ -138,7 +141,7 @@ export function CourseModulesList({
                     <Link
                       key={aula.id}
                       href={`/trilha/${courseId}/${aula.id}`}
-                      className="flex items-center justify-between py-2.5 px-3 rounded-md transition-colors text-sm hover:bg-muted/40 dark:hover:bg-gray-800/60 block"
+                      className="flex items-center justify-between py-3 px-3 rounded-md transition-colors text-sm hover:bg-muted/40 dark:hover:bg-gray-800/60 block group"
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         {/* Status visual da aula */}
@@ -156,15 +159,25 @@ export function CourseModulesList({
                           )}
                         </div>
                         
-                        {/* Título da aula */}
-                        <span className="font-medium truncate">
-                          {aula.titulo.replace(/^Aula \d+ – /, '')}
-                        </span>
+                        {/* Informações da aula */}
+                        <div className="flex-1 min-w-0">
+                          {/* Título da aula */}
+                          <div className="font-medium truncate group-hover:text-foreground transition-colors">
+                            {aula.titulo}
+                          </div>
+                          
+                          {/* Descrição da aula (se disponível) */}
+                          {aula.description && (
+                            <div className="text-xs text-muted-foreground truncate mt-1">
+                              {truncateText(aula.description, 150)}
+                            </div>
+                          )}
+                        </div>
                       </div>
                       
                       {/* Duração e indicadores */}
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className="text-xs text-muted-foreground">{aula.duracao}</span>
+                        <span className="text-xs text-muted-foreground font-medium">{aula.duracao}</span>
                         <Badge variant={getStatusVariant(aula.status)} className="text-xs">
                           {getStatusText(aula.status)}
                         </Badge>
