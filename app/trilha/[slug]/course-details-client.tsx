@@ -15,8 +15,34 @@ import { Play, Clock, Home } from 'lucide-react';
 import { useState } from 'react';
 import { CourseModulesList } from '@/components/course';
 
+// Interface para os dados do curso
+interface Aula {
+  id: string;
+  titulo: string;
+  duracao: string;
+  status: 'concluida' | 'disponivel' | 'bloqueada' | 'nao_iniciada';
+}
+
+interface Modulo {
+  id: string;
+  titulo: string;
+  resumo: string;
+  aulas: Aula[];
+}
+
+interface Course {
+  titulo: string;
+  descricao: string;
+  totalVideos: number;
+  concluidos: number;
+  percent: number;
+  duracaoTotal: string;
+  categoria: string;
+  modulos: Modulo[];
+}
+
 // Props do componente
-interface TrajetoriaVibraClientProps {
+interface CourseDetailsClientProps {
   user: {
     id: string
     email?: string
@@ -25,44 +51,11 @@ interface TrajetoriaVibraClientProps {
     full_name?: string | null
     country?: string | null
   } | null
+  course: Course
+  courseId: string // Alterado de slug para courseId
 }
 
-// Dados estáticos da trilha
-const curso = {
-  titulo: 'Trajetória Vibra',
-  descricao: 'A história e evolução da Vibra no mercado brasileiro',
-  totalVideos: 8,
-  concluidos: 3,
-  percent: 38,
-  duracaoTotal: '2h30min',
-  categoria: 'Estratégia Comercial',
-  modulos: [
-    {
-      id: 'm1',
-      titulo: 'Origens e Expansão',
-      resumo: '5 vídeos · 1h45min',
-      aulas: [
-        { id: 'aula-1-origens-vibra', titulo: 'Aula 1 – Origens da Vibra no Brasil', duracao: '18:45', status: 'concluida' as const },
-        { id: 'aula-2-expansao-nacional', titulo: 'Aula 2 – Expansão Nacional', duracao: '22:15', status: 'concluida' as const },
-        { id: 'aula-3-governanca-cultura', titulo: 'Aula 3 – Governança e Cultura', duracao: '12:30', status: 'disponivel' as const },
-        { id: 'aula-4-portfolio-inovacao', titulo: 'Aula 4 – Portfólio e Inovação', duracao: '16:10', status: 'disponivel' as const },
-        { id: 'aula-5-esg', titulo: 'Aula 5 – Sustentabilidade e ESG', duracao: '15:20', status: 'disponivel' as const },
-      ],
-    },
-    {
-      id: 'm2',
-      titulo: 'Atualidade e Futuro',
-      resumo: '3 vídeos · 45min',
-      aulas: [
-        { id: 'aula-6-mercado-concorrencia', titulo: 'Aula 6 – Mercado e Concorrência', duracao: '09:50', status: 'disponivel' as const },
-        { id: 'aula-7-parcerias-estrategicas', titulo: 'Aula 7 – Parcerias Estratégicas', duracao: '11:05', status: 'disponivel' as const },
-        { id: 'aula-8-visao-futuro', titulo: 'Aula 8 – Visão de Futuro', duracao: '24:10', status: 'disponivel' as const },
-      ],
-    },
-  ],
-};
-
-export default function TrajetoriaVibraClient({ user, profile }: TrajetoriaVibraClientProps) {
+export default function CourseDetailsClient({ user, profile, course, courseId }: CourseDetailsClientProps) {
   const [accordionValue, setAccordionValue] = useState<string[]>(['m1', 'm2']);
 
   const fecharTodosModulos = () => {
@@ -70,7 +63,20 @@ export default function TrajetoriaVibraClient({ user, profile }: TrajetoriaVibra
   };
 
   const abrirTodosModulos = () => {
-    setAccordionValue(curso.modulos.map(modulo => modulo.id));
+    setAccordionValue(course.modulos.map(modulo => modulo.id));
+  };
+
+  // Determinar a primeira aula disponível para o botão "Continuar curso"
+  const getFirstAvailableLesson = () => {
+    for (const modulo of course.modulos) {
+      for (const aula of modulo.aulas) {
+        if (aula.status === 'disponivel' || aula.status === 'concluida') {
+          return `/trilha/${courseId}/${aula.id}`;
+        }
+      }
+    }
+    // Fallback para a primeira aula do primeiro módulo
+    return `/trilha/${courseId}/${course.modulos[0]?.aulas[0]?.id || 'aula-1'}`;
   };
 
   return (
@@ -88,7 +94,7 @@ export default function TrajetoriaVibraClient({ user, profile }: TrajetoriaVibra
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage className="text-foreground">Trajetória Vibra</BreadcrumbPage>
+                <BreadcrumbPage className="text-foreground">{course.titulo}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -99,15 +105,15 @@ export default function TrajetoriaVibraClient({ user, profile }: TrajetoriaVibra
               <div className="space-y-4 flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <Badge variant="secondary" className="bg-background/80 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700">
-                    {curso.categoria}
+                    {course.categoria}
                   </Badge>
                   <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
                     <Clock className="h-4 w-4" />
-                    {curso.duracaoTotal}
+                    {course.duracaoTotal}
                   </div>
                 </div>
-                <h1 className="text-4xl font-bold text-foreground leading-tight">{curso.titulo}</h1>
-                <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed">{curso.descricao}</p>
+                <h1 className="text-4xl font-bold text-foreground leading-tight">{course.titulo}</h1>
+                <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed">{course.descricao}</p>
               </div>
               
               <div className="flex flex-col gap-3 min-w-fit justify-center">
@@ -116,9 +122,9 @@ export default function TrajetoriaVibraClient({ user, profile }: TrajetoriaVibra
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 text-base font-semibold transition-all duration-200"
                   asChild
                 >
-                  <Link href="/trilha/trajetoria-vibra/aula-3-governanca-cultura" className="flex items-center gap-2">
+                  <Link href={getFirstAvailableLesson()} className="flex items-center gap-2">
                     <Play className="h-5 w-5" />
-                    Continuar curso
+                    {course.concluidos > 0 ? 'Continuar curso' : 'Começar curso'}
                   </Link>
                 </Button>
               </div>
@@ -151,9 +157,9 @@ export default function TrajetoriaVibraClient({ user, profile }: TrajetoriaVibra
             </div>
             
             <CourseModulesList
-              modulos={curso.modulos}
+              modulos={course.modulos}
               expandedModules={accordionValue}
-              courseId="550e8400-e29b-41d4-a716-446655440000"
+              courseId={courseId}
               onModuleToggle={(moduleId) => {
                 if (accordionValue.includes(moduleId)) {
                   setAccordionValue(accordionValue.filter(id => id !== moduleId));

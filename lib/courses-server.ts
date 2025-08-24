@@ -247,6 +247,71 @@ export async function getCoursesWithProgress(
 }
 
 /**
+ * Busca um curso específico por ID com todos os módulos e vídeos
+ */
+export async function getCourseWithModules(courseId: string): Promise<Course | null> {
+  const supabase = createClient()
+
+  const { data: course, error } = await supabase
+    .from('courses')
+    .select(`
+      id,
+      title,
+      description,
+      cover_image,
+      level,
+      status,
+      rating_average,
+      created_at,
+      updated_at,
+      category_id,
+      category:categories!category_id(
+        id,
+        name,
+        slug,
+        color,
+        variant
+      ),
+      modules(
+        id,
+        videos(
+          id,
+          duration,
+          progress_videos(
+            user_id,
+            status,
+            progress_seconds,
+            completed_at
+          )
+        )
+      )
+    `)
+    .eq('id', courseId)
+    .eq('status', 'published')
+    .single()
+
+  if (error) {
+    console.error('Erro ao buscar curso com módulos:', error)
+    return null
+  }
+
+  // Mapear os dados para o formato correto
+  return course ? {
+    id: course.id,
+    title: course.title,
+    description: course.description,
+    cover_image: course.cover_image,
+    level: course.level,
+    status: course.status,
+    rating_average: course.rating_average,
+    created_at: course.created_at,
+    updated_at: course.updated_at,
+    categories: Array.isArray(course.category) ? course.category[0] || null : course.category || null,
+    modules: course.modules || []
+  } as Course : null
+}
+
+/**
  * Busca um curso específico por ID
  */
 export async function getCourseById(courseId: string): Promise<Course | null> {

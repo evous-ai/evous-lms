@@ -28,13 +28,15 @@ interface CourseModulesListProps {
   onModuleToggle?: (moduleId: string) => void;
   expandedModules?: string[];
   className?: string;
+  courseId?: string; // Alterado de courseSlug para courseId
 }
 
 export function CourseModulesList({ 
   modulos, 
   onModuleToggle,
   expandedModules: externalExpandedModules,
-  className = ''
+  className = '',
+  courseId = '550e8400-e29b-41d4-a716-446655440000' // Valor padrão para compatibilidade (Trajetória Vibra)
 }: CourseModulesListProps) {
   // Estado interno para controle de módulos expandidos
   const [internalExpandedModules, setInternalExpandedModules] = useState<string[]>(['m1']);
@@ -135,7 +137,7 @@ export function CourseModulesList({
                   {modulo.aulas.map((aula) => (
                     <Link
                       key={aula.id}
-                      href="/trilha/trajetoria-vibra/aula-3-governanca-cultura"
+                      href={`/trilha/${courseId}/${aula.id}`}
                       className="flex items-center justify-between py-2.5 px-3 rounded-md transition-colors text-sm hover:bg-muted/40 dark:hover:bg-gray-800/60 block"
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">

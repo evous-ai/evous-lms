@@ -22,8 +22,8 @@ export const CoursesGrid = memo(function CoursesGrid({ treinamentos }: CoursesGr
           cor={treinamento.cor}
           acao={treinamento.acao}
           acaoVariant={treinamento.acaoVariant}
-          acaoHref={treinamento.acaoHref || "/trilha/trajetoria-vibra"}
-          href={treinamento.acaoHref || "/trilha/trajetoria-vibra"}
+          acaoHref={treinamento.acaoHref}
+          href={treinamento.acaoHref} // Usar o acaoHref como href principal
         />
       ))}
     </div>

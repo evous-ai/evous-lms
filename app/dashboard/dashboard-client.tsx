@@ -12,17 +12,17 @@ import { Play } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { PoweredByEvous } from "@/components/powered-by-evous"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo } from "react"
 import { useCompanyColor, useCompanyLogo } from "@/components/providers/company-provider"
-import { getCategoriesByCompanyClient, Category } from "@/lib/categories"
-import { useOptimizedCourses } from "@/hooks/use-optimized-courses"
+import { Category } from "@/lib/categories"
+import { Course } from "@/lib/courses-server"
 
 import { useDashboardFilters } from "@/hooks/use-dashboard-filters"
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters"
 import { FilterResults } from "@/components/dashboard/FilterResults"
 import { NoResultsMessage } from "@/components/dashboard/NoResultsMessage"
 import { CoursesGrid } from "@/components/dashboard/CoursesGrid"
-import { CoursesSkeleton } from "@/components/dashboard/CoursesSkeleton"
+import { convertCourseToTreinamento } from "@/lib/utils"
 
 interface DashboardClientProps {
   user: {
@@ -34,18 +34,37 @@ interface DashboardClientProps {
     country?: string | null
     company_id?: string | null
   } | null
+  initialData: {
+    categorias: Category[]
+    cursos: Course[]
+    progressoCategorias: Array<{
+      category_id: string
+      category_name: string
+      category_slug: string | null
+      category_color: string | null
+      videos_count: number
+      total_duration: number
+      user_action: string
+      progress_count: number
+      completion_percentage: number
+      status: string
+    }>
+    error: string | null
+  }
 }
 
-export default function DashboardClient({ user, profile }: DashboardClientProps) {
-  const [categorias, setCategorias] = useState<Category[]>([])
-  const [loadingCategorias, setLoadingCategorias] = useState(true)
+export default function DashboardClient({ user, profile, initialData }: DashboardClientProps) {
+  // Usar dados iniciais do server-side
+  const [categorias] = useState<Category[]>(initialData.categorias)
+  const [treinamentos] = useState<Course[]>(initialData.cursos)
   
-  // Hook otimizado para cursos
-  const { treinamentos, loading: loadingCursos } = useOptimizedCourses(6, user?.id)
+  // Converter cursos para o formato esperado pelo hook
+  const treinamentosConvertidos = useMemo(() => 
+    treinamentos.map(convertCourseToTreinamento), 
+    [treinamentos]
+  )
   
-
-
-  // Hook para filtros
+  // Hook para filtros (agora usa dados já carregados)
   const {
     filters,
     treinamentosFiltrados,
@@ -53,45 +72,11 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
     temFiltrosAtivos,
     limparFiltros,
     atualizarFiltro
-  } = useDashboardFilters(treinamentos)
-
-
+  } = useDashboardFilters(treinamentosConvertidos)
 
   // Hooks para dados da empresa
   const primaryColor = useCompanyColor()
   const { darkLogo } = useCompanyLogo()
-
-  // Buscar categorias do banco de dados
-  useEffect(() => {
-    const fetchCategorias = async () => {
-      if (!profile?.company_id) {
-        console.log('Company ID não encontrado no perfil:', profile)
-        setLoadingCategorias(false)
-        return
-      }
-
-      try {
-        console.log('Buscando categorias para company_id:', profile.company_id)
-        setLoadingCategorias(true)
-        const result = await getCategoriesByCompanyClient(profile.company_id)
-        
-        if (result.success && result.categories) {
-          console.log('Categorias carregadas com sucesso:', result.categories.length)
-          setCategorias(result.categories)
-        } else {
-          console.warn('Erro ao buscar categorias:', result.error)
-          setCategorias([])
-        }
-      } catch (error) {
-        console.error('Erro ao buscar categorias:', error)
-        setCategorias([])
-      } finally {
-        setLoadingCategorias(false)
-      }
-    }
-
-    fetchCategorias()
-  }, [profile?.company_id, profile])
 
   // Preparar opções de categorias para o filtro
   const opcoesCategorias = useMemo(() => {
@@ -101,6 +86,25 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
     }
     return categoriasBase
   }, [categorias])
+
+  // Se houver erro nos dados, mostrar mensagem
+  if (initialData.error) {
+    return (
+      <SidebarProvider>
+        <LMSSidebar user={user} profile={profile} />
+        <SidebarInset>
+          <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 bg-slate-50 dark:bg-background">
+            <Card className="text-white border-0 shadow-none bg-red-600">
+              <CardContent className="p-8">
+                <h1 className="text-xl font-bold">Erro ao carregar dados</h1>
+                <p className="text-red-100">{initialData.error}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    )
+  }
 
   return (
     <SidebarProvider>
@@ -153,7 +157,7 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
                 onClearFilters={limparFiltros}
                 statusOptions={statusOptions}
                 categoriaOptions={opcoesCategorias}
-                loadingCategorias={loadingCategorias}
+                loadingCategorias={false} // Não precisa mais carregar
                 temFiltrosAtivos={temFiltrosAtivos}
               />
             </div>
@@ -166,13 +170,11 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
             />
 
             {/* Conteúdo principal */}
-            {loadingCursos ? (
-              <CoursesSkeleton count={6} />
-            ) : treinamentosFiltrados.length > 0 ? (
+            {treinamentos.length > 0 ? (
               <CoursesGrid treinamentos={treinamentosFiltrados} />
             ) : (
               <NoResultsMessage
-                hasCourses={treinamentos.length > 0}
+                hasCourses={false}
                 onClearFilters={limparFiltros}
               />
             )}
