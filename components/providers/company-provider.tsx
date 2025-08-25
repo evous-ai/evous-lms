@@ -54,7 +54,12 @@ export function CompanyProvider({ children, initialCompany }: CompanyProviderPro
   useEffect(() => {
     // Se não temos dados iniciais, busca da API
     if (!initialCompany) {
-      fetchCompany()
+      // Adicionar delay para evitar carregamento imediato desnecessário
+      const timer = setTimeout(() => {
+        fetchCompany()
+      }, 100)
+      
+      return () => clearTimeout(timer)
     }
   }, [initialCompany])
 

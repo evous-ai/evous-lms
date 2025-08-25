@@ -1,54 +1,33 @@
-"use client"
+import { requireAuth, getAuthenticatedUser } from '@/lib/auth-server'
+import { getCourseById } from '@/lib/hooks-server'
+import { notFound } from 'next/navigation'
+import CourseDetailsClient from './course-details-client'
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ArrowRight, Play } from 'lucide-react';
+interface TrilhaPageProps {
+  params: Promise<{ slug: string }>
+}
 
-export default function TrilhaPage() {
+export default async function TrilhaPage({ params }: TrilhaPageProps) {
+  await requireAuth()
+  const { user, profile } = await getAuthenticatedUser()
+  
+  // Aguardar os params - o slug na verdade é o courseId (UUID)
+  const { slug: courseId } = await params
+  
+  // Buscar dados do curso usando a função server-side
+  const courseData = await getCourseById(courseId, user.id)
+  
+  // Se não encontrar o curso, mostrar 404
+  if (courseData.error || !courseData.course) {
+    notFound()
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 p-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-4">Trajetória Vibra</h1>
-        <p className="text-muted-foreground text-lg mb-6">
-          A história e evolução da Vibra no mercado brasileiro
-        </p>
-        
-        <Card className="p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Módulos do Curso</h2>
-          <div className="space-y-4">
-            <div className="p-4 border rounded-lg hover:bg-slate-50 transition-colors">
-              <h3 className="font-medium">Fundação e História</h3>
-              <p className="text-sm text-muted-foreground mb-3">Conheça as origens da Vibra</p>
-              <Button size="sm" variant="outline" asChild>
-                <Link href="/trilha/trajetoria-vibra" className="flex items-center gap-2">
-                  Ver módulo
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-            <div className="p-4 border rounded-lg hover:bg-slate-50 transition-colors">
-              <h3 className="font-medium">Evolução e Inovação</h3>
-              <p className="text-sm text-muted-foreground mb-3">Descubra como a Vibra se reinventou</p>
-              <Button size="sm" variant="outline" asChild>
-                <Link href="/trilha/trajetoria-vibra" className="flex items-center gap-2">
-                  Ver módulo
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </Card>
-
-        <div className="text-center">
-          <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3" asChild>
-            <Link href="/trilha/trajetoria-vibra" className="flex items-center gap-2">
-              <Play className="h-5 w-5" />
-              Começar curso
-            </Link>
-          </Button>
-        </div>
-      </div>
-    </div>
+    <CourseDetailsClient 
+      user={user} 
+      profile={profile} 
+      course={courseData.course}
+      courseId={courseId}
+    />
   )
 } 

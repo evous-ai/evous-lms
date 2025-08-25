@@ -65,7 +65,6 @@ export function PoweredByEvous({ size = "md", className = "" }: PoweredByEvousPr
           width={config.logoWidth}
           height={config.logoHeight}
           className="object-contain"
-          style={{ width: "auto", height: "auto" }}
         />
       </a>
     </div>

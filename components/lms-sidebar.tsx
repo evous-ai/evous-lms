@@ -91,7 +91,6 @@ function DynamicLogo() {
         height={logoConfig.height}
         priority
         className={state === "collapsed" ? "transition-all duration-200 object-contain flex-shrink-0 mx-auto" : "transition-all duration-200 object-contain flex-shrink-0"}
-        style={{ width: "auto", height: "auto" }}
       />
     </div>
   )
