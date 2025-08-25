@@ -962,6 +962,8 @@ export default function VideoDetailsClient({
         onClose={() => setIsContactModalOpen(false)}
         lessonTitle={video.titulo}
         videoId={videoId}
+        user={user}
+        profile={profile}
         onSuccess={() => {
           // Recarregar histórico de solicitações após envio bem-sucedido
           fetchSupportRequests();

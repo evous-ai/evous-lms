@@ -13,6 +13,7 @@ import { useState, useMemo } from "react"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { TrainingCard } from "@/components/TrainingCard"
 import { Treinamento } from "@/lib/types/dashboard"
+import { useAnalytics } from "@/hooks/use-analytics"
 
 // Props do componente
 interface MeusTreinamentosClientProps {
@@ -30,10 +31,40 @@ interface MeusTreinamentosClientProps {
 export default function MeusTreinamentosClient({ user, profile, treinamentos }: MeusTreinamentosClientProps) {
   // ✅ Usar dados reais em vez de mockados
   const treinamentosData = treinamentos || []
+  const { trackSearchQuery, trackFilterUsage } = useAnalytics()
 
   const [busca, setBusca] = useState("")
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas")
   const [statusFiltro, setStatusFiltro] = useState("Todos")
+
+  // Função para trackear mudanças de filtro
+  const handleFilterChange = (filterType: 'busca' | 'categoria' | 'status', value: string) => {
+    if (filterType === 'busca') {
+      setBusca(value)
+      if (value.trim()) {
+        // Calcular resultsCount baseado nos filtros atuais
+        const filteredResults = treinamentosData.filter(treinamento => {
+          const matchBusca = treinamento.titulo.toLowerCase().includes(value.toLowerCase()) ||
+                            treinamento.categoria.toLowerCase().includes(value.toLowerCase())
+          const matchCategoria = categoriaFiltro === "Todas" || treinamento.categoria === categoriaFiltro
+          const matchStatus = statusFiltro === "Todos" || treinamento.status === statusFiltro
+          
+          return matchBusca && matchCategoria && matchStatus
+        })
+        trackSearchQuery(value.trim(), filteredResults.length)
+      }
+    } else if (filterType === 'categoria') {
+      setCategoriaFiltro(value)
+      if (value !== "Todas") {
+        trackFilterUsage('categoria', value)
+      }
+    } else if (filterType === 'status') {
+      setStatusFiltro(value)
+      if (value !== "Todos") {
+        trackFilterUsage('status', value)
+      }
+    }
+  }
 
   // Filtrar treinamentos
   const treinamentosFiltrados = useMemo(() => {
@@ -96,7 +127,7 @@ export default function MeusTreinamentosClient({ user, profile, treinamentos }: 
                   <Input
                     placeholder="Buscar treinamentos..."
                     value={busca}
-                    onChange={(e) => setBusca(e.target.value)}
+                    onChange={(e) => handleFilterChange('busca', e.target.value)}
                     className="pl-10 pr-4 bg-background border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
@@ -106,7 +137,7 @@ export default function MeusTreinamentosClient({ user, profile, treinamentos }: 
                   <Combobox
                     options={["Todas", "Identidade Visual", "Estratégia Comercial", "Produtos & Combustíveis", "Tecnologia", "Tratamento", "Patologia"].map(cat => ({ value: cat, label: cat }))}
                     value={categoriaFiltro}
-                    onValueChange={setCategoriaFiltro}
+                    onValueChange={(value) => handleFilterChange('categoria', value)}
                     placeholder="Categoria"
                     searchPlaceholder="Buscar categoria..."
                     emptyText="Nenhuma categoria encontrada."
@@ -118,7 +149,7 @@ export default function MeusTreinamentosClient({ user, profile, treinamentos }: 
                   <Combobox
                     options={["Todos", "concluido", "em-andamento", "nao-iniciado"].map(st => ({ value: st, label: st }))}
                     value={statusFiltro}
-                    onValueChange={setStatusFiltro}
+                    onValueChange={(value) => handleFilterChange('status', value)}
                     placeholder="Status"
                     searchPlaceholder="Buscar status..."
                     emptyText="Nenhum status encontrado."

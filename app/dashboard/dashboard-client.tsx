@@ -23,6 +23,7 @@ import { FilterResults } from "@/components/dashboard/FilterResults"
 import { NoResultsMessage } from "@/components/dashboard/NoResultsMessage"
 import { CoursesGrid } from "@/components/dashboard/CoursesGrid"
 import { convertCourseToTreinamento } from "@/lib/utils"
+import { useAnalytics } from "@/hooks/use-analytics"
 
 interface DashboardClientProps {
   user: {
@@ -57,6 +58,7 @@ export default function DashboardClient({ user, profile, initialData }: Dashboar
   // Usar dados iniciais do server-side
   const [categorias] = useState<Category[]>(initialData.categorias)
   const [treinamentos] = useState<Course[]>(initialData.cursos)
+  const { trackSearchQuery } = useAnalytics()
   
   // Converter cursos para o formato esperado pelo hook
   const treinamentosConvertidos = useMemo(() => 
@@ -73,6 +75,17 @@ export default function DashboardClient({ user, profile, initialData }: Dashboar
     limparFiltros,
     atualizarFiltro
   } = useDashboardFilters(treinamentosConvertidos)
+
+  // Função para atualizar filtro com tracking
+  const handleFilterChange = (key: keyof typeof filters, value: string) => {
+    atualizarFiltro(key, value)
+    
+    // Trackear busca com resultsCount correto
+    if (key === 'busca' && value.trim()) {
+      const resultsCount = treinamentosFiltrados.length
+      trackSearchQuery(value.trim(), resultsCount)
+    }
+  }
 
   // Hooks para dados da empresa
   const primaryColor = useCompanyColor()
@@ -155,7 +168,7 @@ export default function DashboardClient({ user, profile, initialData }: Dashboar
               {/* Filtros */}
               <DashboardFilters
                 filters={filters}
-                onFilterChange={atualizarFiltro}
+                onFilterChange={handleFilterChange}
                 onClearFilters={limparFiltros}
                 statusOptions={statusOptions}
                 categoriaOptions={opcoesCategorias}

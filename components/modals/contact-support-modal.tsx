@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,9 +15,25 @@ interface ContactSupportModalProps {
   lessonTitle?: string
   videoId?: string // Novo prop para identificar o vídeo
   onSuccess?: () => void // Callback após envio bem-sucedido
+  user?: {
+    id: string
+    email?: string
+  }
+  profile?: {
+    full_name?: string | null
+    country?: string | null
+  } | null
 }
 
-export function ContactSupportModal({ isOpen, onClose, lessonTitle, videoId, onSuccess }: ContactSupportModalProps) {
+export function ContactSupportModal({ 
+  isOpen, 
+  onClose, 
+  lessonTitle, 
+  videoId, 
+  onSuccess,
+  user,
+  profile
+}: ContactSupportModalProps) {
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
@@ -27,6 +43,17 @@ export function ContactSupportModal({ isOpen, onClose, lessonTitle, videoId, onS
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
+  // ✅ Preencher automaticamente nome e email quando o modal abrir
+  useEffect(() => {
+    if (isOpen && user && profile) {
+      setFormData(prev => ({
+        ...prev,
+        nome: profile.full_name || "",
+        email: user.email || ""
+      }))
+    }
+  }, [isOpen, user, profile])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -90,6 +117,14 @@ export function ContactSupportModal({ isOpen, onClose, lessonTitle, videoId, onS
   }
 
   const handleInputChange = (field: string, value: string) => {
+    // ✅ Não permitir alteração de campos somente leitura
+    if (field === 'nome' && profile?.full_name) {
+      return // Campo nome é somente leitura quando preenchido automaticamente
+    }
+    if (field === 'email' && user?.email) {
+      return // Campo email é somente leitura quando preenchido automaticamente
+    }
+    
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
@@ -106,17 +141,34 @@ export function ContactSupportModal({ isOpen, onClose, lessonTitle, videoId, onS
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nome">Nome *</Label>
+              <Label htmlFor="nome" className="flex items-center gap-2">
+                Nome *
+                {profile?.full_name && (
+                  <span className="text-xs text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-full">
+                    Não editável
+                  </span>
+                )}
+              </Label>
               <Input
                 id="nome"
                 value={formData.nome}
                 onChange={(e) => handleInputChange("nome", e.target.value)}
                 placeholder="Seu nome completo"
                 required
+                readOnly={!!profile?.full_name}
+                className={`${profile?.full_name ? "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700 cursor-not-allowed opacity-90" : ""}`}
+                title={profile?.full_name ? "Este campo não pode ser alterado" : ""}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email" className="flex items-center gap-2">
+                Email *
+                {user?.email && (
+                  <span className="text-xs text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-full">
+                    Não editável
+                  </span>
+                )}
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -124,6 +176,9 @@ export function ContactSupportModal({ isOpen, onClose, lessonTitle, videoId, onS
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="seu@email.com"
                 required
+                readOnly={!!user?.email}
+                className={`${user?.email ? "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-700 cursor-not-allowed opacity-90" : ""}`}
+                title={user?.email ? "Este campo não pode ser alterado" : ""}
               />
             </div>
           </div>
@@ -131,7 +186,7 @@ export function ContactSupportModal({ isOpen, onClose, lessonTitle, videoId, onS
           <div className="space-y-2">
             <Label htmlFor="tipo">Tipo de solicitação *</Label>
             <Select value={formData.tipo} onValueChange={(value) => handleInputChange("tipo", value)}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecione o tipo" />
               </SelectTrigger>
               <SelectContent>
@@ -196,7 +251,7 @@ export function ContactSupportModal({ isOpen, onClose, lessonTitle, videoId, onS
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 cursor-pointer"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

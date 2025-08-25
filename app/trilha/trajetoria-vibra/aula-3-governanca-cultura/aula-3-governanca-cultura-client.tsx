@@ -272,6 +272,8 @@ export default function Aula3GovernancaCulturaClient({ user, profile }: Aula3Gov
         isOpen={isContactModalOpen}
         onClose={() => setIsContactModalOpen(false)}
         lessonTitle={lesson.titulo}
+        user={user}
+        profile={profile}
       />
     </SidebarProvider>
   );

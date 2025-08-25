@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { CompanyProvider } from "@/components/providers/company-provider";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { Suspense } from "react";
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +38,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <CompanyProvider>
+            <Suspense fallback={null}>
+              <GoogleAnalytics />
+            </Suspense>
             {children}
           </CompanyProvider>
         </ThemeProvider>

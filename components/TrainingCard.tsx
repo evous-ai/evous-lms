@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Video, Clock } from "lucide-react"
 import Link from "next/link"
+import { useAnalytics } from "@/hooks/use-analytics"
 
 export interface TrainingCardProps {
   id: string
@@ -21,6 +22,7 @@ export interface TrainingCardProps {
 }
 
 export function TrainingCard({
+  id,
   titulo,
   categoria,
   status,
@@ -33,6 +35,13 @@ export function TrainingCard({
   acaoHref,
   href
 }: TrainingCardProps) {
+  const { trackCourse } = useAnalytics()
+
+  // Função para trackear visualização do curso
+  const handleCourseView = () => {
+    trackCourse(id, titulo)
+  }
+
   // Função para obter a cor do badge baseada no status
   const getStatusBadge = (status: string) => {
     if (status === "concluido") {
@@ -119,12 +128,16 @@ export function TrainingCard({
   // Se houver href, envolve o card em um Link
   if (href) {
     return (
-      <Link href={href} className="block">
+      <Link href={href} className="block" onClick={handleCourseView}>
         {cardContent}
       </Link>
     )
   }
 
   // Se não houver href, retorna apenas o card
-  return cardContent
+  return (
+    <div onClick={handleCourseView}>
+      {cardContent}
+    </div>
+  )
 } 
