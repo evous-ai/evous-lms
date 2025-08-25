@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Combobox } from "@/components/ui/combobox"
 import { DashboardFilters as DashboardFiltersType } from "@/lib/types/dashboard"
+import { useAnalytics } from "@/hooks/use-analytics"
 
 interface DashboardFiltersProps {
   filters: DashboardFiltersType
@@ -23,6 +24,20 @@ export function DashboardFilters({
   loadingCategorias,
   temFiltrosAtivos
 }: DashboardFiltersProps) {
+  const { trackFilterUsage } = useAnalytics()
+
+  // Função para trackear mudanças de filtro
+  const handleFilterChange = (key: keyof DashboardFiltersType, value: string) => {
+    onFilterChange(key, value)
+    
+    // Trackear uso de filtros (exceto busca, que é feito no dashboard)
+    if (key === 'categoria' && value) {
+      trackFilterUsage('categoria', value)
+    } else if (key === 'status' && value) {
+      trackFilterUsage('status', value)
+    }
+  }
+
   return (
     <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
       {/* Campo de busca */}
@@ -31,7 +46,7 @@ export function DashboardFilters({
         <Input
           placeholder="Buscar cursos..."
           value={filters.busca}
-          onChange={(e) => onFilterChange('busca', e.target.value)}
+          onChange={(e) => handleFilterChange('busca', e.target.value)}
           className="pl-10 pr-4 bg-background border-border text-foreground placeholder:text-muted-foreground"
         />
       </div>
@@ -41,7 +56,7 @@ export function DashboardFilters({
         <Combobox
           options={categoriaOptions.map(cat => ({ value: cat, label: cat }))}
           value={filters.categoria}
-          onValueChange={(value) => onFilterChange('categoria', value)}
+          onValueChange={(value) => handleFilterChange('categoria', value)}
           placeholder={loadingCategorias ? "Carregando categorias..." : "Categoria"}
           searchPlaceholder="Buscar categoria..."
           emptyText={loadingCategorias ? "Carregando..." : "Nenhuma categoria encontrada."}
@@ -53,7 +68,7 @@ export function DashboardFilters({
         <Combobox
           options={statusOptions.map(st => ({ value: st, label: st }))}
           value={filters.status}
-          onValueChange={(value) => onFilterChange('status', value)}
+          onValueChange={(value) => handleFilterChange('status', value)}
           placeholder="Status"
           searchPlaceholder="Buscar status..."
           emptyText="Nenhum status encontrado."
