@@ -3,6 +3,38 @@ import { redirect } from 'next/navigation'
 import { AuthenticatedUser, AuthStatus } from './types'
 
 /**
+ * Função para API routes que verifica autenticação sem redirecionar
+ * Retorna os dados do usuário ou null se não autenticado
+ */
+export async function getAuthenticatedUserForAPI(): Promise<AuthenticatedUser | null> {
+  const supabase = createServerClient()
+  
+  // Busca o usuário autenticado
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  
+  if (userError || !user) {
+    return null // Retorna null em vez de fazer redirect
+  }
+  
+  // Busca o perfil do usuário
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single()
+  
+  if (profileError) {
+    // Se não encontrar perfil, cria um básico
+    console.warn('Perfil não encontrado para usuário:', user.id)
+  }
+  
+  return {
+    user,
+    profile: profile || null
+  }
+}
+
+/**
  * Função utilitária para páginas que precisam de autenticação
  * Retorna os dados do usuário e perfil, ou redireciona para login
  */
