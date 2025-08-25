@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Users, BarChart3, Settings, Activity } from 'lucide-react';
+import { ArrowLeft, Users, TrendingUp, FileText, Download } from 'lucide-react';
+import { AnalyticsDashboard } from '@/components/dashboard/analytics/AnalyticsDashboard';
 
 export default function DashboardGestor() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-950 p-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Navegação */}
         <div className="mb-6">
           <Button variant="outline" size="sm" asChild>
@@ -26,8 +27,14 @@ export default function DashboardGestor() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="p-6">
+        {/* Dashboard de Analytics */}
+        <div className="mb-8">
+          <AnalyticsDashboard />
+        </div>
+
+        {/* Cards de Ações Rápidas */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-center gap-3 mb-4">
               <Users className="h-6 w-6 text-blue-600" />
               <h2 className="text-xl font-semibold">Gerenciamento de Usuários</h2>
@@ -40,9 +47,9 @@ export default function DashboardGestor() {
             </Button>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-center gap-3 mb-4">
-              <BarChart3 className="h-6 w-6 text-green-600" />
+              <TrendingUp className="h-6 w-6 text-green-600" />
               <h2 className="text-xl font-semibold">Relatórios Avançados</h2>
             </div>
             <p className="text-muted-foreground mb-4">
@@ -53,9 +60,9 @@ export default function DashboardGestor() {
             </Button>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-center gap-3 mb-4">
-              <Settings className="h-6 w-6 text-purple-600" />
+              <FileText className="h-6 w-6 text-purple-600" />
               <h2 className="text-xl font-semibold">Configurações do Sistema</h2>
             </div>
             <p className="text-muted-foreground mb-4">
@@ -66,13 +73,13 @@ export default function DashboardGestor() {
             </Button>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-center gap-3 mb-4">
-              <Activity className="h-6 w-6 text-orange-600" />
-              <h2 className="text-xl font-semibold">Monitoramento de Atividades</h2>
+              <Download className="h-6 w-6 text-orange-600" />
+              <h2 className="text-xl font-semibold">Exportar Dados</h2>
             </div>
             <p className="text-muted-foreground mb-4">
-              Acompanhe atividades e logs do sistema
+              Exporte relatórios e dados para análise externa
             </p>
             <Button variant="outline" asChild>
               <Link href="/dashboard">Acessar</Link>
